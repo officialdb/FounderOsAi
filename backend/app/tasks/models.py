@@ -1,7 +1,7 @@
 from datetime import date, datetime
 import uuid
 
-from sqlalchemy import Boolean, Date, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, CheckConstraint, Date, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +12,9 @@ from app.workspaces.models import Workspace
 
 class Task(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "tasks"
+    __table_args__ = (
+        CheckConstraint("status IN ('todo', 'in_progress', 'done', 'overdue')", name="ck_tasks_status"),
+    )
 
     workspace_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True

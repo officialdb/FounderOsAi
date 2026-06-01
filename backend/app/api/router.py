@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.ai.routes import router as ai_router
 from app.auth.routes import router as auth_router
+from app.core.health import get_service_health
 from app.checkins.routes import router as checkin_router
 from app.notifications.routes import router as notification_router
 from app.outreach.routes import router as outreach_router
@@ -18,7 +19,7 @@ def health_check() -> dict[str, str]:
 
 @router.get("/ready")
 def readiness_check() -> dict[str, str]:
-    return {"status": "ready"}
+    return get_service_health()
 
 
 router.include_router(auth_router)

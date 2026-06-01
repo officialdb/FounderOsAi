@@ -1,3 +1,4 @@
+from app.auth.models import PasswordResetToken, RefreshTokenSession
 from app.ai.models import AIGeneration
 from app.checkins.models import CheckIn
 from app.notifications.models import Notification
@@ -10,9 +11,10 @@ __all__ = [
     "AIGeneration",
     "CheckIn",
     "Notification",
+    "PasswordResetToken",
     "OutreachLog",
+    "RefreshTokenSession",
     "Task",
     "User",
     "Workspace",
 ]
-

@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
-from app.auth.schemas import UserResponse
 from app.database.session import get_db
 from app.users.models import User
 from app.workspaces.schemas import (
@@ -69,4 +68,3 @@ def update_single_workspace(
 ) -> WorkspaceResponse:
     workspace = update_workspace(db, workspace_id, current_user.id, payload)
     return _serialize_workspace(workspace)
-

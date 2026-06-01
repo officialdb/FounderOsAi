@@ -41,11 +41,25 @@ FastAPI service for authentication, workspaces, tasks, check-ins, outreach, AI, 
 - `GET /api/v1/tasks/{task_id}`
 - `PATCH /api/v1/tasks/{task_id}`
 - `POST /api/v1/tasks/{task_id}/complete`
+- `DELETE /api/v1/tasks/{task_id}`
+
+### Canonical task statuses
+
+- `todo`
+- `in_progress`
+- `done`
+- `overdue`
 
 ## Accountability engine
 
 - `POST /api/v1/checkins`
 - `GET /api/v1/checkins/weekly-summary?workspace_id=...`
+
+### Streak fields
+
+- `current_streak`: consecutive days ending today
+- `longest_streak`: longest consecutive streak across stored check-ins
+- `missed_days`: days without a check-in in the last 7-day window
 
 ## AI layer
 
@@ -62,6 +76,14 @@ FastAPI service for authentication, workspaces, tasks, check-ins, outreach, AI, 
 - `POST /api/v1/outreach/{outreach_id}/follow-up`
 - `GET /api/v1/outreach/follow-up-reminders?workspace_id=...`
 
+### Canonical outreach statuses
+
+- `pending`
+- `contacted`
+- `follow_up`
+- `responded`
+- `closed`
+
 ## Notifications
 
 - `GET /api/v1/notifications`
@@ -74,3 +96,8 @@ FastAPI service for authentication, workspaces, tasks, check-ins, outreach, AI, 
 - `POST /api/v1/notifications/generate/missed-task-alerts`
 - `POST /api/v1/notifications/generate/weekly-summary`
 - `POST /api/v1/notifications/generate/inactivity-prompt`
+
+### Notification update contract
+
+- `scheduled_for` is supported on create requests.
+- `scheduled_for` is not supported on update requests for MVP.

@@ -1,7 +1,7 @@
 from datetime import date
 import uuid
 
-from sqlalchemy import Date, ForeignKey, Integer, Text
+from sqlalchemy import Date, ForeignKey, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +12,9 @@ from app.workspaces.models import Workspace
 
 class CheckIn(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "check_ins"
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "check_in_date", name="uq_check_ins_workspace_check_in_date"),
+    )
 
     workspace_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
