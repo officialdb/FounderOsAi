@@ -14,8 +14,8 @@ export function StatusBadge({ status, className, showIcon = true }: StatusBadgeP
   let Icon = Clock;
 
   switch (status) {
-    case "pending":
-      label = "Pending";
+    case "todo":
+      label = "To Do";
       colorClass = "bg-muted text-muted-foreground border-border";
       Icon = Clock;
       break;
@@ -24,8 +24,8 @@ export function StatusBadge({ status, className, showIcon = true }: StatusBadgeP
       colorClass = "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30";
       Icon = PlayCircle;
       break;
-    case "completed":
-      label = "Completed";
+    case "done":
+      label = "Done";
       colorClass = "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30";
       Icon = CheckCircle2;
       break;

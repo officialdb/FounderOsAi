@@ -8,10 +8,12 @@ import { AiPanel } from "@/features/dashboard/ai-panel";
 import { ExecutionChart } from "@/features/dashboard/execution-chart";
 import { WorkspaceHealthCards } from "@/features/dashboard/workspace-health-cards";
 import { ActivityTimeline } from "@/features/dashboard/activity-timeline";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces, useWorkspace } from "@/features/workspaces/workspace-queries";
 import { useWorkspaceStore } from "@/store/workspace-store";
 import { useCheckInStore } from "@/store/checkin-store";
-import { useStreak, useCheckIns } from "@/features/checkins/checkin-queries";
+import { useTasks } from "@/features/tasks/task-queries";
+import { useWeeklySummary, useStreak, useCheckIns } from "@/features/checkins/checkin-queries";
+import { useNotificationSummary } from "@/features/notifications/notification-queries";
 import { useOutreachLogs } from "@/features/outreach/outreach-queries";
 import { LoadingState } from "@/components/feedback/loading-state";
 import { ErrorState } from "@/components/feedback/error-state";
@@ -21,13 +23,12 @@ export function DashboardView() {
   const workspaceId = useWorkspaceStore((state) => state.workspaceId);
   const setWorkspaceId = useWorkspaceStore((state) => state.setWorkspaceId);
   const isWorkspaceHydrated = useWorkspaceStore((state) => state.isHydrated);
-  const {
-    workspacesQuery,
-    selectedWorkspaceQuery,
-    tasksQuery,
-    weeklySummaryQuery,
-    notificationSummaryQuery,
-  } = useDashboardData();
+
+  const workspacesQuery = useWorkspaces();
+  const selectedWorkspaceQuery = useWorkspace(workspaceId);
+  const tasksQuery = useTasks(workspaceId || "all");
+  const weeklySummaryQuery = useWeeklySummary(workspaceId);
+  const notificationSummaryQuery = useNotificationSummary();
 
   const workspaces = workspacesQuery.data ?? [];
   const workspace = selectedWorkspaceQuery.data ?? workspaces[0] ?? null;
@@ -156,7 +157,7 @@ export function DashboardView() {
 
       {/* Row 2 — Execution Analytics & Right Panel */}
       <section className="grid gap-4 lg:grid-cols-3">
-        <ExecutionChart />
+        <ExecutionChart tasks={tasks} checkIns={checkIns ?? []} outreachLogs={outreachLogs ?? []} />
         <div className="lg:col-span-1">
           <AiPanel />
         </div>
@@ -165,12 +166,12 @@ export function DashboardView() {
       {/* Row 3 — Workspace Health */}
       <section>
         <h2 className="text-lg font-semibold tracking-tight mb-4">Workspace Health</h2>
-        <WorkspaceHealthCards workspaces={workspaces} />
+        <WorkspaceHealthCards workspaces={workspaces} tasks={tasks} checkIns={checkIns ?? []} outreachLogs={outreachLogs ?? []} />
       </section>
 
       {/* Row 4 — Recent Activity */}
       <section>
-        <ActivityTimeline />
+        <ActivityTimeline tasks={tasks} checkIns={checkIns ?? []} outreachLogs={outreachLogs ?? []} />
       </section>
     </div>
   );

@@ -5,10 +5,13 @@ import { Bell, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WorkspaceSwitcher } from "@/features/dashboard/workspace-switcher";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
+import { useCurrentUser } from "@/features/auth/auth-queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { clearAuthToken } from "@/lib/auth";
+import { logout } from "@/services/auth.service";
+import { useAuthStore } from "@/store/auth-store";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -22,7 +25,8 @@ import { NotificationBell } from "./notification-bell";
 
 export function TopNav() {
   const router = useRouter();
-  const { workspacesQuery, userQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
+  const userQuery = useCurrentUser();
   const workspaces = workspacesQuery.data ?? [];
   const user = userQuery?.data;
   const [isMounted, setIsMounted] = React.useState(false);
@@ -96,9 +100,14 @@ export function TopNav() {
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="cursor-pointer text-destructive focus:bg-destructive focus:text-destructive-foreground" 
-                onClick={() => {
-                  clearAuthToken();
-                  router.push("/login");
+                onClick={async () => {
+                  try {
+                    await logout();
+                  } finally {
+                    clearAuthToken();
+                    useAuthStore.getState().logout();
+                    router.push("/login");
+                  }
                 }}
               >
                 <LogOut className="mr-2 h-4 w-4" />

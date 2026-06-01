@@ -4,23 +4,34 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Briefcase, Activity, CheckCircle2, MessageSquare } from "lucide-react";
 import type { Workspace } from "@/types/workspace";
+import { formatDistanceToNow } from "date-fns";
+import type { Task } from "@/services/task.service";
+import type { CheckIn } from "@/services/checkin.service";
+import type { OutreachLog } from "@/services/outreach.service";
 
 type WorkspaceHealthCardsProps = {
   workspaces: Workspace[];
+  tasks: Task[];
+  checkIns: CheckIn[];
+  outreachLogs: OutreachLog[];
 };
 
-export function WorkspaceHealthCards({ workspaces }: WorkspaceHealthCardsProps) {
+export function WorkspaceHealthCards({ workspaces, tasks, checkIns, outreachLogs }: WorkspaceHealthCardsProps) {
   // If no workspaces, don't render or handle empty state appropriately in parent
   if (workspaces.length === 0) return null;
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {workspaces.slice(0, 2).map((workspace, index) => {
-        // Mock data for health score based on index
-        const healthScore = index === 0 ? 85 : 62;
-        const activeTasks = index === 0 ? 12 : 5;
-        const outreachCount = index === 0 ? 24 : 8;
-        const lastActivity = index === 0 ? "2 hours ago" : "3 days ago";
+      {workspaces.slice(0, 2).map((workspace) => {
+        const workspaceTasks = tasks.filter(t => t.workspace_id === workspace.id && t.status !== "done").length;
+        const workspaceOutreach = outreachLogs.filter(o => o.workspace_id === workspace.id).length;
+        const workspaceCheckIns = checkIns.filter(c => c.workspace_id === workspace.id);
+        
+        const latestCheckIn = workspaceCheckIns.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+        const lastActivity = latestCheckIn ? formatDistanceToNow(new Date(latestCheckIn.created_at), { addSuffix: true }) : "No activity yet";
+        
+        // Simple mock health score calculation: 50 base + 5 per checkin + 2 per outreach - 2 per overdue task
+        const healthScore = Math.min(100, Math.max(0, 50 + (workspaceCheckIns.length * 5) + (workspaceOutreach * 2)));
 
         return (
           <Card key={workspace.id} className="border-border/50 shadow-subtle hover:border-primary/20 transition-colors">
@@ -49,14 +60,14 @@ export function WorkspaceHealthCards({ workspaces }: WorkspaceHealthCardsProps) 
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">Tasks</span>
                   </div>
-                  <span className="text-sm font-semibold">{activeTasks}</span>
+                  <span className="text-sm font-semibold">{workspaceTasks}</span>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">
                     <MessageSquare className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">Outreach</span>
                   </div>
-                  <span className="text-sm font-semibold">{outreachCount}</span>
+                  <span className="text-sm font-semibold">{workspaceOutreach}</span>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">

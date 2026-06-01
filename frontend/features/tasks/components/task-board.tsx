@@ -6,14 +6,15 @@ type TaskBoardProps = {
 };
 
 export function TaskBoard({ tasks }: TaskBoardProps) {
-  const pending = tasks.filter((t) => t.status === "pending" || !t.status);
+  const todo = tasks.filter((t) => t.status === "todo" || !t.status);
   const inProgress = tasks.filter((t) => t.status === "in_progress");
-  const completed = tasks.filter((t) => t.status === "completed");
+  const done = tasks.filter((t) => t.status === "done");
+  const overdue = tasks.filter((t) => t.status === "overdue");
 
   const columns = [
-    { id: "pending", title: "Pending", tasks: pending },
+    { id: "todo", title: "To Do", tasks: todo },
     { id: "in_progress", title: "In Progress", tasks: inProgress },
-    { id: "completed", title: "Completed", tasks: completed },
+    { id: "done", title: "Done", tasks: done },
   ];
 
   if (tasks.length === 0) {

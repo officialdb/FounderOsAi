@@ -30,3 +30,31 @@ export async function fetchCurrentUser(token: string) {
   return apiRequest<User>("/auth/me", {}, { token });
 }
 
+export async function logout() {
+  return apiRequest<{ message: string }>("/auth/logout", {
+    method: "POST",
+  });
+}
+
+export type PasswordResetRequestPayload = {
+  email: string;
+};
+
+export type PasswordResetConfirmPayload = {
+  token: string;
+  new_password: string;
+};
+
+export async function requestPasswordReset(payload: PasswordResetRequestPayload) {
+  return apiRequest<{ message: string; reset_token?: string | null }>("/auth/password-reset", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function confirmPasswordReset(payload: PasswordResetConfirmPayload) {
+  return apiRequest<{ message: string }>("/auth/password-reset/confirm", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

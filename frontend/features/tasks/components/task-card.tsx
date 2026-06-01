@@ -13,7 +13,7 @@ import { StatusBadge } from "./status-badge";
 import { type Task } from "@/services/task.service";
 import { useTaskStore } from "@/store/task-store";
 import { useUpdateTask, useDeleteTask } from "../task-queries";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 
 type TaskCardProps = {
   task: Task;
@@ -24,7 +24,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
   const setSelectedTaskId = useTaskStore((state) => state.setSelectedTaskId);
   const { mutate: updateTask } = useUpdateTask();
   const { mutate: deleteTask } = useDeleteTask();
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   
   const workspaces = workspacesQuery.data ?? [];
   const workspace = workspaces.find((w) => w.id === task.workspace_id);
@@ -33,7 +33,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
     e.stopPropagation();
     updateTask({
       taskId: task.id,
-      payload: { status: task.status === "completed" ? "pending" : "completed" },
+      payload: { status: task.status === "done" ? "todo" : "done" },
     });
   };
 
@@ -44,7 +44,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
     }
   };
 
-  const isOverdue = task.status !== "completed" && task.due_date && isPast(new Date(task.due_date));
+  const isOverdue = task.status !== "done" && task.due_date && isPast(new Date(task.due_date));
   const displayStatus = isOverdue ? "overdue" : task.status;
 
   if (view === "board") {
@@ -65,7 +65,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleComplete}>
                   <Check className="mr-2 h-4 w-4" />
-                  {task.status === "completed" ? "Mark Pending" : "Mark Complete"}
+                  {task.status === "done" ? "Mark To Do" : "Mark Done"}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedTaskId(task.id); }}>
                   <Edit2 className="mr-2 h-4 w-4" />
@@ -107,7 +107,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
           variant="ghost"
           size="icon"
           className={`h-8 w-8 shrink-0 rounded-full border-2 ${
-            task.status === "completed" 
+            task.status === "done" 
               ? "bg-green-500 border-green-500 text-white hover:bg-green-600 hover:border-green-600" 
               : "border-muted-foreground/30 hover:border-primary text-transparent hover:text-primary"
           }`}
@@ -117,7 +117,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
         </Button>
 
         <div className="flex-1 min-w-0">
-          <h4 className={`font-medium text-sm sm:text-base truncate ${task.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
+          <h4 className={`font-medium text-sm sm:text-base truncate ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
             {task.title}
           </h4>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground hidden sm:flex">

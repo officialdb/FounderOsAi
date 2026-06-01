@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircle, Briefcase, ArrowRight } from "lucide-react";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 import { useWorkspaceStore } from "@/store/workspace-store";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,7 +11,7 @@ import { WorkspaceModal } from "@/features/dashboard/workspace-modal";
 
 export function WorkspacesView() {
   const router = useRouter();
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const workspaces = workspacesQuery.data ?? [];
   const isLoading = workspacesQuery.isLoading;
   const workspaceId = useWorkspaceStore((state) => state.workspaceId);

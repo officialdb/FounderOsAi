@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Button } from "@/components/ui/button";
 import { useTaskStore } from "@/store/task-store";
 import { useTasks, useUpdateTask, useDeleteTask } from "../task-queries";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 import { PriorityBadge } from "./priority-badge";
 import { StatusBadge } from "./status-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 export function TaskDrawer() {
   const { selectedTaskId, setSelectedTaskId, workspaceFilter } = useTaskStore();
   const { data: tasks } = useTasks(workspaceFilter);
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const { mutate: updateTask } = useUpdateTask();
   const { mutate: deleteTask } = useDeleteTask();
 
@@ -27,11 +27,11 @@ export function TaskDrawer() {
   if (!task) return null;
 
   const handleStatusChange = (status: string) => {
-    updateTask({ taskId: task.id, payload: { status } });
+    updateTask({ taskId: task.id, payload: { status: status as import("@/services/task.service").TaskStatus } });
   };
 
   const handlePriorityChange = (priority: string) => {
-    updateTask({ taskId: task.id, payload: { priority: priority as any } });
+    updateTask({ taskId: task.id, payload: { priority: priority as import("@/services/task.service").TaskPriority } });
   };
 
   const handleDelete = () => {
@@ -64,9 +64,9 @@ export function TaskDrawer() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="todo">To Do</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="done">Done</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -113,11 +113,11 @@ export function TaskDrawer() {
           </div>
 
           <div className="pt-6 border-t flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={() => handleStatusChange(task.status === "completed" ? "pending" : "completed")}>
-              {task.status === "completed" ? (
-                <><Clock className="mr-2 h-4 w-4" /> Mark Pending</>
+            <Button variant="outline" size="sm" onClick={() => handleStatusChange(task.status === "done" ? "todo" : "done")}>
+              {task.status === "done" ? (
+                <><Clock className="mr-2 h-4 w-4" /> Mark To Do</>
               ) : (
-                <><CheckCircle2 className="mr-2 h-4 w-4" /> Mark Complete</>
+                <><CheckCircle2 className="mr-2 h-4 w-4" /> Mark Done</>
               )}
             </Button>
 

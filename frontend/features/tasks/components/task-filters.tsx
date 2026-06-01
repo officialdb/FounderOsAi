@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTaskStore } from "@/store/task-store";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 
 export function TaskFilters() {
   const {
@@ -27,7 +27,7 @@ export function TaskFilters() {
     setViewMode,
   } = useTaskStore();
 
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const workspaces = workspacesQuery.data ?? [];
 
   return (
@@ -53,10 +53,10 @@ export function TaskFilters() {
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuLabel>Filter Status</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
-              checked={statusFilter.includes("pending")}
-              onCheckedChange={() => toggleStatusFilter("pending")}
+              checked={statusFilter.includes("todo")}
+              onCheckedChange={() => toggleStatusFilter("todo")}
             >
-              Pending
+              To Do
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={statusFilter.includes("in_progress")}
@@ -65,10 +65,16 @@ export function TaskFilters() {
               In Progress
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
-              checked={statusFilter.includes("completed")}
-              onCheckedChange={() => toggleStatusFilter("completed")}
+              checked={statusFilter.includes("done")}
+              onCheckedChange={() => toggleStatusFilter("done")}
             >
-              Completed
+              Done
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={statusFilter.includes("overdue")}
+              onCheckedChange={() => toggleStatusFilter("overdue")}
+            >
+              Overdue
             </DropdownMenuCheckboxItem>
             
             <DropdownMenuSeparator />

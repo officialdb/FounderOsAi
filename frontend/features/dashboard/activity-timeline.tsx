@@ -3,46 +3,80 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, MessageSquare, ClipboardList, Sparkles } from "lucide-react";
 
-const activities = [
-  {
-    id: 1,
-    title: "Task completed",
-    description: "Reviewed the updated pitch deck for Techpronnet",
-    time: "2 hours ago",
-    icon: CheckCircle2,
-    iconBg: "bg-emerald-500/10",
-    iconColor: "text-emerald-500",
-  },
-  {
-    id: 2,
-    title: "Outreach logged",
-    description: "Sent follow-up email to 5 potential investors",
-    time: "4 hours ago",
-    icon: MessageSquare,
-    iconBg: "bg-blue-500/10",
-    iconColor: "text-blue-500",
-  },
-  {
-    id: 3,
-    title: "Check-in submitted",
-    description: "Completed end-of-day summary for Zidi Clinic",
-    time: "Yesterday",
-    icon: ClipboardList,
-    iconBg: "bg-amber-500/10",
-    iconColor: "text-amber-500",
-  },
-  {
-    id: 4,
-    title: "AI content generated",
-    description: "Drafted a Twitter thread about startup operations",
-    time: "Yesterday",
-    icon: Sparkles,
-    iconBg: "bg-purple-500/10",
-    iconColor: "text-purple-500",
-  },
-];
+import { useMemo } from "react";
+import { formatDistanceToNow } from "date-fns";
+import type { Task } from "@/services/task.service";
+import type { CheckIn } from "@/services/checkin.service";
+import type { OutreachLog } from "@/services/outreach.service";
 
-export function ActivityTimeline() {
+type ActivityTimelineProps = {
+  tasks: Task[];
+  checkIns: CheckIn[];
+  outreachLogs: OutreachLog[];
+};
+
+export function ActivityTimeline({ tasks, checkIns, outreachLogs }: ActivityTimelineProps) {
+  const activities = useMemo(() => {
+    type ActivityItem = {
+      id: string;
+      title: string;
+      description: string;
+      date: Date;
+      icon: React.ElementType;
+      iconBg: string;
+      iconColor: string;
+    };
+    
+    const list: ActivityItem[] = [];
+    // Add completed tasks
+    tasks.filter(t => t.status === "done" && t.completed_at).forEach(t => {
+      list.push({
+        id: `task-${t.id}`,
+        title: "Task completed",
+        description: t.title,
+        date: new Date(t.completed_at!),
+        icon: CheckCircle2,
+        iconBg: "bg-emerald-500/10",
+        iconColor: "text-emerald-500",
+      });
+    });
+
+    // Add checkins
+    checkIns.forEach(c => {
+      list.push({
+        id: `checkin-${c.id}`,
+        title: "Check-in submitted",
+        description: "Daily summary logged",
+        date: new Date(c.created_at),
+        icon: ClipboardList,
+        iconBg: "bg-amber-500/10",
+        iconColor: "text-amber-500",
+      });
+    });
+
+    // Add outreach
+    outreachLogs.forEach(o => {
+      list.push({
+        id: `outreach-${o.id}`,
+        title: "Outreach logged",
+        description: `Contacted ${o.contact_name}`,
+        date: new Date(o.created_at),
+        icon: MessageSquare,
+        iconBg: "bg-blue-500/10",
+        iconColor: "text-blue-500",
+      });
+    });
+
+    // Sort by date descending and take top 5
+    return list
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 5)
+      .map(item => ({
+        ...item,
+        time: formatDistanceToNow(item.date, { addSuffix: true })
+      }));
+  }, [tasks, checkIns, outreachLogs]);
+
   return (
     <Card className="border-border/50 shadow-subtle">
       <CardHeader>

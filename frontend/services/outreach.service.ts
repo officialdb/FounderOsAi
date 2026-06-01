@@ -29,7 +29,7 @@ export type OutreachCreatePayload = {
   contact_name: string;
   contact_company?: string;
   contact_channel?: string;
-  status: string;
+  status: OutreachStatus;
   follow_up_date?: string | null;
   notes?: string;
 };
@@ -63,4 +63,3 @@ export async function deleteOutreachLog(token: string, outreachId: string) {
 export async function getFollowUpReminders(token: string, workspaceId: string) {
   return apiRequest<FollowUpReminderResponse>(`/outreach/follow-up-reminders?workspace_id=${workspaceId}`, {}, { token });
 }
-

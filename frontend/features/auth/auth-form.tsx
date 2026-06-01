@@ -178,6 +178,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               src="/auth-illustration.png"
               alt="FounderOS Authentication Illustration"
               fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-contain"
               priority
             />
