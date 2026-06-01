@@ -11,7 +11,7 @@ import { TaskDrawer } from "./components/task-drawer";
 import { useTaskStore } from "@/store/task-store";
 import { useTasks } from "./task-queries";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 import { useWorkspaceStore } from "@/store/workspace-store";
 
 export function TasksView() {
@@ -26,7 +26,7 @@ export function TasksView() {
   const workspaceId = useWorkspaceStore((state) => state.workspaceId);
   const setWorkspaceId = useWorkspaceStore((state) => state.setWorkspaceId);
 
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const workspaces = workspacesQuery.data ?? [];
   const { data: rawTasks, isLoading } = useTasks(workspaceId ?? "all");
   const [mounted, setMounted] = React.useState(false);

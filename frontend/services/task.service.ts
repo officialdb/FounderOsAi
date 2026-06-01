@@ -1,7 +1,7 @@
 import { apiRequest } from "@/services/api-client";
 
 export type TaskPriority = "low" | "medium" | "high" | "critical" | number;
-export type TaskStatus = "pending" | "in_progress" | "completed" | "overdue" | string;
+export type TaskStatus = "todo" | "in_progress" | "done" | "overdue";
 
 export function mapPriorityToInt(priority?: TaskPriority): number | undefined {
   if (typeof priority === "number") return priority;

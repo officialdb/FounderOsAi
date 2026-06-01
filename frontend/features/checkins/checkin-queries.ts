@@ -16,7 +16,7 @@ export function useWeeklySummary(workspaceId: string | null) {
   const token = getAuthToken();
 
   return useQuery({
-    queryKey: ["weeklySummary", workspaceId],
+    queryKey: ["weekly-summary", workspaceId],
     queryFn: () => getWeeklySummary(token ?? "", workspaceId!),
     enabled: Boolean(token && workspaceId),
   });
@@ -40,7 +40,7 @@ export function useCreateCheckIn() {
     mutationFn: (payload: CheckInCreatePayload) => createCheckIn(token ?? "", payload),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["checkins", variables.workspace_id] });
-      queryClient.invalidateQueries({ queryKey: ["weeklySummary", variables.workspace_id] });
+      queryClient.invalidateQueries({ queryKey: ["weekly-summary", variables.workspace_id] });
       queryClient.invalidateQueries({ queryKey: ["streak", variables.workspace_id] });
     },
   });

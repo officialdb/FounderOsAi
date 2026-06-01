@@ -83,7 +83,6 @@ export function CheckinsView() {
                 <div className="lg:col-span-1">
                   <ProductivityScoreCard 
                     score={weeklySummary?.average_score ?? 0} 
-                    trend={weeklySummary ? 5 : undefined} // Mock trend for now
                   />
                 </div>
                 <div className="md:col-span-2 lg:col-span-1">
