@@ -86,7 +86,7 @@ def test_list_outreach_logs_returns_workspace_items() -> None:
             contact_name="Ada",
             contact_company="Acme",
             contact_channel="email",
-            status="sent",
+            status="pending",
             follow_up_date=None,
             notes=None,
             extra_metadata={},
@@ -115,7 +115,7 @@ def test_create_outreach_log_persists_record() -> None:
         contact_name="Grace",
         contact_company="Studio",
         contact_channel="linkedin",
-        status="sent",
+        status="pending",
         follow_up_date=date.today() + timedelta(days=2),
         notes="Initial intro",
     )
@@ -142,7 +142,7 @@ def test_update_outreach_log_applies_changes() -> None:
         contact_name="Old",
         contact_company=None,
         contact_channel="email",
-        status="sent",
+        status="pending",
         follow_up_date=None,
         notes=None,
         extra_metadata={},
@@ -151,10 +151,10 @@ def test_update_outreach_log_applies_changes() -> None:
     )
     session.outreach_lookup_result = outreach_log
 
-    result = update_outreach_log(session, outreach_log.id, owner_id, OutreachUpdateRequest(contact_name="New", status="replied"))
+    result = update_outreach_log(session, outreach_log.id, owner_id, OutreachUpdateRequest(contact_name="New", status="responded"))
 
     assert result.contact_name == "New"
-    assert result.status == "replied"
+    assert result.status == "responded"
 
 
 def test_delete_outreach_log_removes_record() -> None:
@@ -169,20 +169,20 @@ def test_delete_outreach_log_removes_record() -> None:
     assert session.committed is True
 
 
-def test_mark_follow_up_needed_sets_waiting_state() -> None:
+def test_mark_follow_up_needed_sets_follow_up_state() -> None:
     session = FakeSession()
     owner_id = uuid4()
     outreach_log = FakeOutreachLog(
         id=uuid4(),
         workspace_id=uuid4(),
-        status="sent",
+        status="contacted",
         follow_up_date=None,
     )
     session.outreach_lookup_result = outreach_log
 
     result = mark_follow_up_needed(session, outreach_log.id, owner_id, None)
 
-    assert result.status == "waiting"
+    assert result.status == "follow_up"
     assert result.follow_up_date is not None
 
 

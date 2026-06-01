@@ -36,10 +36,10 @@ class WeeklySummaryResponse(BaseModel):
     total_check_ins: int
     average_score: float
     current_streak: int
+    longest_streak: int
     best_score: int
     missed_days: int
 
 class StreakResponse(BaseModel):
     current_streak: int
     longest_streak: int
-

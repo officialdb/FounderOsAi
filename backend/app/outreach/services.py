@@ -10,7 +10,7 @@ from app.workspaces.models import Workspace
 from app.workspaces.services import get_workspace
 
 
-FOLLOW_UP_STATUSES = {"sent", "replied", "scheduled", "waiting", "completed"}
+ACTIVE_FOLLOW_UP_STATUSES = {"pending", "contacted", "follow_up", "responded"}
 
 
 def _get_outreach_log(db: Session, outreach_id: UUID, owner_id: UUID) -> OutreachLog:
@@ -75,7 +75,7 @@ def get_follow_up_reminders(db: Session, workspace_id: UUID, owner_id: UUID) -> 
         db.query(OutreachLog)
         .filter(
             OutreachLog.workspace_id == workspace_id,
-            OutreachLog.status.in_(FOLLOW_UP_STATUSES),
+            OutreachLog.status.in_(ACTIVE_FOLLOW_UP_STATUSES),
             OutreachLog.follow_up_date == today,
         )
         .count()
@@ -84,7 +84,7 @@ def get_follow_up_reminders(db: Session, workspace_id: UUID, owner_id: UUID) -> 
         db.query(OutreachLog)
         .filter(
             OutreachLog.workspace_id == workspace_id,
-            OutreachLog.status.in_(FOLLOW_UP_STATUSES),
+            OutreachLog.status.in_(ACTIVE_FOLLOW_UP_STATUSES),
             OutreachLog.follow_up_date.isnot(None),
             OutreachLog.follow_up_date < today,
         )
@@ -100,7 +100,7 @@ def get_follow_up_reminders(db: Session, workspace_id: UUID, owner_id: UUID) -> 
 
 def mark_follow_up_needed(db: Session, outreach_id: UUID, owner_id: UUID, follow_up_date: date | None) -> OutreachLog:
     outreach_log = _get_outreach_log(db, outreach_id, owner_id)
-    outreach_log.status = "waiting"
+    outreach_log.status = "follow_up"
     outreach_log.follow_up_date = follow_up_date or (date.today() + timedelta(days=2))
     db.commit()
     db.refresh(outreach_log)

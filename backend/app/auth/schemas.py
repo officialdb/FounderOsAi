@@ -21,6 +21,11 @@ class PasswordResetConfirmRequest(BaseModel):
     new_password: str = Field(min_length=8)
 
 
+class PasswordResetResponse(BaseModel):
+    message: str
+    reset_token: str | None = None
+
+
 class UserResponse(BaseModel):
     id: str
     email: EmailStr
@@ -36,4 +41,3 @@ class TokenResponse(BaseModel):
 class AuthResponse(BaseModel):
     user: UserResponse
     token: TokenResponse
-

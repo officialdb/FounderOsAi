@@ -64,6 +64,5 @@ def get_streak_route(
     summary = get_weekly_summary(db, current_user.id, workspace_id)
     return StreakResponse(
         current_streak=summary["current_streak"],
-        longest_streak=summary["current_streak"] # using current as placeholder for longest
+        longest_streak=summary["longest_streak"],
     )
-

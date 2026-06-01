@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import router as health_router
 from app.core.logging import configure_logging
+from app.core.middleware import RequestLoggingMiddleware
+from app.core.observability import configure_observability
 from app.core.settings import get_settings
 import app.database.models  # noqa: F401
 
@@ -10,6 +12,7 @@ import app.database.models  # noqa: F401
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging()
+    configure_observability()
 
     app = FastAPI(title=settings.app_name, debug=settings.app_debug)
 
@@ -29,5 +32,6 @@ def create_app() -> FastAPI:
             allow_headers=["*"],
         )
 
+    app.add_middleware(RequestLoggingMiddleware)
     app.include_router(health_router, prefix=settings.api_v1_prefix)
     return app

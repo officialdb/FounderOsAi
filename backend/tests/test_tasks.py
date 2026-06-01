@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 import app.tasks.services as task_services
 from app.tasks.schemas import TaskCreateRequest, TaskUpdateRequest
-from app.tasks.services import complete_task, create_task, get_task, list_tasks, update_task
+from app.tasks.services import complete_task, create_task, delete_task, get_task, list_tasks, update_task
 
 
 class FakeWorkspace:
@@ -41,6 +41,7 @@ class FakeQuery:
 class FakeSession:
     def __init__(self):
         self.added = None
+        self.deleted = None
         self.committed = False
         self.refreshed = None
         self.task_list_result = []
@@ -51,6 +52,9 @@ class FakeSession:
 
     def add(self, task):
         self.added = task
+
+    def delete(self, task):
+        self.deleted = task
 
     def commit(self):
         self.committed = True
@@ -88,6 +92,7 @@ def test_list_tasks_marks_overdue_items() -> None:
         task_services.get_workspace = original_get_workspace
 
     assert tasks[0].is_overdue is True
+    assert tasks[0].status == "overdue"
 
 
 def test_create_task_sets_defaults() -> None:
@@ -185,3 +190,33 @@ def test_complete_task_marks_done() -> None:
     assert result.status == "done"
     assert result.is_overdue is False
     assert result.completed_at is not None
+
+
+def test_delete_task_removes_record() -> None:
+    session = FakeSession()
+    owner_id = uuid4()
+    task = FakeTask(
+        id=uuid4(),
+        workspace_id=uuid4(),
+        title="Delete me",
+        description=None,
+        priority=2,
+        status="todo",
+        due_date=None,
+        completed_at=None,
+        is_overdue=False,
+        extra_metadata={},
+        created_at=None,
+        updated_at=None,
+    )
+    session.task_lookup_result = task
+
+    original_get_task = task_services.get_task
+    task_services.get_task = lambda *_args, **_kwargs: task
+    try:
+        delete_task(session, task.id, owner_id)
+    finally:
+        task_services.get_task = original_get_task
+
+    assert session.deleted is task
+    assert session.committed is True

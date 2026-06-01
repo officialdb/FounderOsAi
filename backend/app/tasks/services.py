@@ -11,9 +11,14 @@ from app.workspaces.services import get_workspace
 
 
 def _refresh_overdue_state(task: Task) -> Task:
-    if task.status != "done" and task.due_date is not None and task.due_date < date.today():
+    if task.status == "done":
+        task.is_overdue = False
+    elif task.due_date is not None and task.due_date < date.today():
         task.is_overdue = True
-    elif task.status == "done":
+        task.status = "overdue"
+    elif task.status == "overdue":
+        task.is_overdue = True
+    else:
         task.is_overdue = False
     return task
 
@@ -79,3 +84,9 @@ def complete_task(db: Session, task_id: UUID, owner_id: UUID) -> Task:
     db.commit()
     db.refresh(task)
     return task
+
+
+def delete_task(db: Session, task_id: UUID, owner_id: UUID) -> None:
+    task = get_task(db, task_id, owner_id)
+    db.delete(task)
+    db.commit()

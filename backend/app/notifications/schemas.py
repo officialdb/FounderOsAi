@@ -15,7 +15,6 @@ class NotificationCreateRequest(BaseModel):
 
 class NotificationUpdateRequest(BaseModel):
     is_read: bool | None = None
-    scheduled_for: datetime | None = None
     extra_metadata: dict[str, object] | None = None
 
 
@@ -38,4 +37,3 @@ class NotificationSummaryResponse(BaseModel):
     unread_notifications: int
     unread_reminders: int
     unread_alerts: int
-
