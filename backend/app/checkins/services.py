@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.checkins.models import CheckIn
 from app.checkins.schemas import CheckInCreateRequest
+from app.workspaces.models import Workspace
 from app.workspaces.services import get_workspace
 
 
@@ -78,14 +79,14 @@ def create_check_in(db: Session, owner_id: UUID, payload: CheckInCreateRequest) 
     db.refresh(check_in)
     return check_in
 
-def get_check_ins(db: Session, owner_id: UUID, workspace_id: UUID) -> list[CheckIn]:
-    get_workspace(db, workspace_id, owner_id)
-    return (
-        db.query(CheckIn)
-        .filter(CheckIn.workspace_id == workspace_id)
-        .order_by(CheckIn.check_in_date.desc())
-        .all()
-    )
+def get_check_ins(db: Session, owner_id: UUID, workspace_id: UUID | None) -> list[CheckIn]:
+    query = db.query(CheckIn).join(Workspace, Workspace.id == CheckIn.workspace_id).filter(Workspace.owner_id == owner_id)
+
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(CheckIn.workspace_id == workspace_id)
+
+    return query.order_by(CheckIn.check_in_date.desc()).all()
 
 
 def _calculate_current_streak(check_ins: list[CheckIn]) -> int:
@@ -93,10 +94,10 @@ def _calculate_current_streak(check_ins: list[CheckIn]) -> int:
         return 0
 
     ordered_dates = sorted({check_in.check_in_date for check_in in check_ins}, reverse=True)
-    streak = 0
-    expected_date = date.today()
+    streak = 1
+    expected_date = ordered_dates[0] - timedelta(days=1)
 
-    for actual_date in ordered_dates:
+    for actual_date in ordered_dates[1:]:
         if actual_date == expected_date:
             streak += 1
             expected_date -= timedelta(days=1)
@@ -126,27 +127,17 @@ def _calculate_longest_streak(check_ins: list[CheckIn]) -> int:
     return longest
 
 
-def _get_all_check_ins(db: Session, workspace_id: UUID) -> list[CheckIn]:
-    return (
-        db.query(CheckIn)
-        .filter(CheckIn.workspace_id == workspace_id)
-        .order_by(CheckIn.check_in_date.asc())
-        .all()
-    )
+def get_weekly_summary(db: Session, owner_id: UUID, workspace_id: UUID | None) -> dict[str, object]:
+    query = db.query(CheckIn).join(Workspace, Workspace.id == CheckIn.workspace_id).filter(Workspace.owner_id == owner_id)
 
-
-def get_weekly_summary(db: Session, owner_id: UUID, workspace_id: UUID) -> dict[str, object]:
-    get_workspace(db, workspace_id, owner_id)
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(CheckIn.workspace_id == workspace_id)
 
     today = date.today()
     period_start = today - timedelta(days=6)
-    weekly_check_ins = (
-        db.query(CheckIn)
-        .filter(CheckIn.workspace_id == workspace_id, CheckIn.check_in_date >= period_start)
-        .order_by(CheckIn.check_in_date.asc())
-        .all()
-    )
-    all_check_ins = _get_all_check_ins(db, workspace_id)
+    weekly_check_ins = query.filter(CheckIn.check_in_date >= period_start).order_by(CheckIn.check_in_date.asc()).all()
+    all_check_ins = query.order_by(CheckIn.check_in_date.asc()).all()
 
     if not weekly_check_ins:
         return {

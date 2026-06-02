@@ -23,9 +23,14 @@ def _refresh_overdue_state(task: Task) -> Task:
     return task
 
 
-def list_tasks(db: Session, workspace_id: UUID, owner_id: UUID) -> list[Task]:
-    get_workspace(db, workspace_id, owner_id)
-    tasks = db.query(Task).filter(Task.workspace_id == workspace_id).order_by(Task.created_at.desc()).all()
+def list_tasks(db: Session, workspace_id: UUID | None, owner_id: UUID) -> list[Task]:
+    query = db.query(Task).join(Workspace, Workspace.id == Task.workspace_id).filter(Workspace.owner_id == owner_id)
+
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(Task.workspace_id == workspace_id)
+
+    tasks = query.order_by(Task.created_at.desc()).all()
     for task in tasks:
         _refresh_overdue_state(task)
     db.commit()

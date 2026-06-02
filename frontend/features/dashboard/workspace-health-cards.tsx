@@ -1,26 +1,47 @@
 "use client";
 
+import { useMemo } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Briefcase, Activity, CheckCircle2, MessageSquare } from "lucide-react";
 import type { Workspace } from "@/types/workspace";
+import type { Task } from "@/services/task.service";
+import type { CheckIn } from "@/services/checkin.service";
+import type { OutreachLog } from "@/services/outreach.service";
 
 type WorkspaceHealthCardsProps = {
   workspaces: Workspace[];
+  tasks: Task[];
+  checkIns: CheckIn[];
+  outreachLogs: OutreachLog[];
 };
 
-export function WorkspaceHealthCards({ workspaces }: WorkspaceHealthCardsProps) {
+export function WorkspaceHealthCards({ workspaces, tasks, checkIns, outreachLogs }: WorkspaceHealthCardsProps) {
   // If no workspaces, don't render or handle empty state appropriately in parent
   if (workspaces.length === 0) return null;
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {workspaces.slice(0, 2).map((workspace, index) => {
-        // Mock data for health score based on index
-        const healthScore = index === 0 ? 85 : 62;
-        const activeTasks = index === 0 ? 12 : 5;
-        const outreachCount = index === 0 ? 24 : 8;
-        const lastActivity = index === 0 ? "2 hours ago" : "3 days ago";
+        const workspaceTasks = tasks.filter((task) => task.workspace_id === workspace.id);
+        const activeTasks = workspaceTasks.filter((task) => task.status !== "done").length;
+        const outreachCount = outreachLogs.filter((log) => log.workspace_id === workspace.id).length;
+        const workspaceCheckIns = checkIns.filter((checkIn) => checkIn.workspace_id === workspace.id);
+        const latestActivityDate = [
+          ...workspaceTasks.map((task) => new Date(task.updated_at)),
+          ...workspaceCheckIns.map((checkIn) => new Date(checkIn.created_at)),
+          ...outreachLogs.filter((log) => log.workspace_id === workspace.id).map((log) => new Date(log.created_at)),
+        ].sort((a, b) => b.getTime() - a.getTime())[0];
+
+        const completedRatio = workspaceTasks.length > 0 ? workspaceTasks.filter((task) => task.status === "done").length / workspaceTasks.length : 0;
+        const checkInScore = Math.min(workspaceCheckIns.length * 8, 30);
+        const outreachScore = Math.min(outreachCount * 2, 20);
+        const completionScore = Math.round(completedRatio * 50);
+        const healthScore = Math.min(100, completionScore + checkInScore + outreachScore);
+        const lastActivity = latestActivityDate
+          ? formatDistanceToNow(latestActivityDate, { addSuffix: true })
+          : "No activity yet";
 
         return (
           <Card key={workspace.id} className="border-border/50 shadow-subtle hover:border-primary/20 transition-colors">

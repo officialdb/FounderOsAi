@@ -39,7 +39,7 @@ def submit_check_in(
 
 @router.get("/weekly-summary", response_model=WeeklySummaryResponse)
 def weekly_summary(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> WeeklySummaryResponse:
@@ -48,7 +48,7 @@ def weekly_summary(
 
 @router.get("", response_model=list[CheckInResponse])
 def get_check_ins_route(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[CheckInResponse]:
@@ -57,7 +57,7 @@ def get_check_ins_route(
 
 @router.get("/streak", response_model=StreakResponse)
 def get_streak_route(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> StreakResponse:

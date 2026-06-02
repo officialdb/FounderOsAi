@@ -10,23 +10,23 @@ import {
   type OutreachUpdatePayload,
 } from "@/services/outreach.service";
 
-export function useOutreachLogs(workspaceId: string | null) {
+export function useOutreachLogs(workspaceId?: string | null) {
   const token = getAuthToken();
 
   return useQuery({
-    queryKey: ["outreach-logs", workspaceId],
-    queryFn: () => getOutreachLogs(token ?? "", workspaceId!),
-    enabled: Boolean(token && workspaceId),
+    queryKey: ["outreach-logs", workspaceId ?? "all"],
+    queryFn: () => getOutreachLogs(token ?? "", workspaceId ?? undefined),
+    enabled: Boolean(token),
   });
 }
 
-export function useFollowUpReminders(workspaceId: string | null) {
+export function useFollowUpReminders(workspaceId?: string | null) {
   const token = getAuthToken();
 
   return useQuery({
-    queryKey: ["outreach-reminders", workspaceId],
-    queryFn: () => getFollowUpReminders(token ?? "", workspaceId!),
-    enabled: Boolean(token && workspaceId),
+    queryKey: ["outreach-reminders", workspaceId ?? "all"],
+    queryFn: () => getFollowUpReminders(token ?? "", workspaceId ?? undefined),
+    enabled: Boolean(token),
   });
 }
 
@@ -37,6 +37,8 @@ export function useCreateOutreach() {
   return useMutation({
     mutationFn: (payload: OutreachCreatePayload) => createOutreachLog(token ?? "", payload),
     onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["outreach-logs"] });
+      queryClient.invalidateQueries({ queryKey: ["outreach-reminders"] });
       queryClient.invalidateQueries({ queryKey: ["outreach-logs", variables.workspace_id] });
       queryClient.invalidateQueries({ queryKey: ["outreach-reminders", variables.workspace_id] });
     },
@@ -51,6 +53,8 @@ export function useUpdateOutreach() {
     mutationFn: ({ id, workspaceId, payload }: { id: string; workspaceId: string; payload: OutreachUpdatePayload }) =>
       updateOutreachLog(token ?? "", id, payload),
     onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["outreach-logs"] });
+      queryClient.invalidateQueries({ queryKey: ["outreach-reminders"] });
       queryClient.invalidateQueries({ queryKey: ["outreach-logs", variables.workspaceId] });
       queryClient.invalidateQueries({ queryKey: ["outreach-reminders", variables.workspaceId] });
     },
@@ -64,6 +68,8 @@ export function useDeleteOutreach() {
   return useMutation({
     mutationFn: ({ id }: { id: string; workspaceId: string }) => deleteOutreachLog(token ?? "", id),
     onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["outreach-logs"] });
+      queryClient.invalidateQueries({ queryKey: ["outreach-reminders"] });
       queryClient.invalidateQueries({ queryKey: ["outreach-logs", variables.workspaceId] });
       queryClient.invalidateQueries({ queryKey: ["outreach-reminders", variables.workspaceId] });
     },

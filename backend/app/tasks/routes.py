@@ -31,7 +31,7 @@ def _serialize_task(task) -> TaskResponse:
 
 @router.get("", response_model=list[TaskResponse])
 def get_tasks(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[TaskResponse]:

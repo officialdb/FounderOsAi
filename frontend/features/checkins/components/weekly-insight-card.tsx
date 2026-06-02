@@ -6,7 +6,7 @@ import { BrainCircuit, TrendingUp, Calendar, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type WeeklyInsightCardProps = {
-  aiFeedback: string;
+  aiFeedback: string | null;
   checkInCount: number;
 };
 
@@ -26,7 +26,7 @@ export function WeeklyInsightCard({ aiFeedback, checkInCount }: WeeklyInsightCar
       </CardHeader>
       <CardContent className="pt-6 flex-1 flex flex-col justify-between gap-6">
         <p className="text-sm text-foreground leading-relaxed">
-          {aiFeedback}
+          {aiFeedback ?? "No AI feedback yet. Submit a check-in to generate accountability insights."}
         </p>
         
         <div className="grid grid-cols-2 gap-4 mt-auto">

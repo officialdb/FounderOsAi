@@ -5,11 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Flame } from "lucide-react";
 
 type StreakCardProps = {
-  currentStreak: number;
-  longestStreak: number;
+  currentStreak: number | null;
+  longestStreak: number | null;
 };
 
 export function StreakCard({ currentStreak, longestStreak }: StreakCardProps) {
+  const hasStreakData = currentStreak !== null;
+  const displayedStreak = hasStreakData ? currentStreak : "—";
+  const displayedLongest = longestStreak !== null ? `${longestStreak} Days` : "—";
+
   return (
     <Card className="h-full border-border/50 bg-card/50 overflow-hidden relative">
       <div className="absolute -right-6 -top-6 text-orange-500/10 pointer-events-none">
@@ -24,28 +28,32 @@ export function StreakCard({ currentStreak, longestStreak }: StreakCardProps) {
       </CardHeader>
       <CardContent className="relative">
         <div className="flex items-end gap-2">
-          <div className="text-4xl font-bold text-foreground">🔥 {currentStreak}</div>
+          <div className="text-4xl font-bold text-foreground">🔥 {displayedStreak}</div>
           <div className="text-xl text-muted-foreground font-medium mb-1">Days</div>
         </div>
         
         <div className="mt-6 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Current Best</span>
-          <span className="font-semibold px-2 py-0.5 bg-muted rounded-md">{longestStreak} Days</span>
+          <span className="font-semibold px-2 py-0.5 bg-muted rounded-md">{displayedLongest}</span>
         </div>
         
         {/* Simple visual week indicator */}
-        <div className="mt-4 flex gap-1.5 w-full justify-between">
-          {[1, 2, 3, 4, 5, 6, 7].map((day) => (
-            <div 
-              key={day} 
-              className={`h-2 flex-1 rounded-full ${
-                day <= (currentStreak % 7 === 0 && currentStreak > 0 ? 7 : currentStreak % 7) 
-                  ? 'bg-orange-500' 
-                  : 'bg-muted'
-              }`}
-            />
-          ))}
-        </div>
+        {hasStreakData ? (
+          <div className="mt-4 flex gap-1.5 w-full justify-between">
+            {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+              <div
+                key={day}
+                className={`h-2 flex-1 rounded-full ${
+                  day <= ((currentStreak ?? 0) % 7 === 0 && (currentStreak ?? 0) > 0 ? 7 : (currentStreak ?? 0) % 7)
+                    ? "bg-orange-500"
+                    : "bg-muted"
+                }`}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-xs text-muted-foreground">No streak data yet.</p>
+        )}
       </CardContent>
     </Card>
   );

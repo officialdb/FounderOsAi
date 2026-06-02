@@ -23,9 +23,9 @@ export function CheckInSummary() {
     return [...checkIns].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
   }, [checkIns]);
 
-  const score = latestCheckIn?.productivity_score ?? latestCheckIn?.score ?? 0;
-  const currentStreak = streakData?.current_streak ?? weeklySummary?.current_streak ?? 1;
-  const aiFeedback = latestCheckIn?.extra_metadata?.ai_feedback as string | undefined;
+  const score = latestCheckIn?.productivity_score ?? latestCheckIn?.score ?? null;
+  const currentStreak = streakData?.current_streak ?? weeklySummary?.current_streak ?? null;
+  const aiFeedback = latestCheckIn?.extra_metadata?.ai_feedback as string | null | undefined;
 
   return (
     <Dialog open={showSummaryAfterSubmit} onOpenChange={setShowSummaryAfterSubmit}>
@@ -42,14 +42,14 @@ export function CheckInSummary() {
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 bg-card rounded-xl border border-border/50 p-4 text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Productivity</p>
-              <p className="text-3xl font-bold text-primary">{score}%</p>
+              <p className="text-3xl font-bold text-primary">{score === null ? "—" : `${score}%`}</p>
             </div>
             
             <div className="flex-1 bg-card rounded-xl border border-border/50 p-4 text-center">
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Current Streak</p>
               <p className="text-3xl font-bold flex items-center justify-center gap-1">
                 <Flame className="h-6 w-6 text-orange-500" />
-                {currentStreak} <span className="text-lg text-muted-foreground font-medium">Days</span>
+                {currentStreak === null ? "—" : currentStreak} <span className="text-lg text-muted-foreground font-medium">Days</span>
               </p>
             </div>
           </div>
@@ -60,7 +60,7 @@ export function CheckInSummary() {
               AI Feedback
             </h3>
             <p className="text-sm text-foreground leading-relaxed">
-              {aiFeedback || "You completed key execution tasks today. Keep up the consistent effort. Focus heavily on your defined priorities for tomorrow to maintain your momentum."}
+              {aiFeedback ?? "No AI feedback has been generated for this check-in yet."}
             </p>
           </div>
         </div>

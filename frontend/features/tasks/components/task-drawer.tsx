@@ -12,6 +12,7 @@ import { StatusBadge } from "./status-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle2, Clock, Trash2, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import type { TaskPriority, TaskStatus } from "@/services/task.service";
 
 export function TaskDrawer() {
   const { selectedTaskId, setSelectedTaskId, workspaceFilter } = useTaskStore();
@@ -26,12 +27,12 @@ export function TaskDrawer() {
 
   if (!task) return null;
 
-  const handleStatusChange = (status: string) => {
+  const handleStatusChange = (status: TaskStatus) => {
     updateTask({ taskId: task.id, payload: { status } });
   };
 
   const handlePriorityChange = (priority: string) => {
-    updateTask({ taskId: task.id, payload: { priority: priority as any } });
+    updateTask({ taskId: task.id, payload: { priority: priority as TaskPriority } });
   };
 
   const handleDelete = () => {
@@ -49,7 +50,7 @@ export function TaskDrawer() {
             <SheetTitle className="text-xl leading-tight">{task.title}</SheetTitle>
           </div>
           <SheetDescription className="flex items-center gap-2 mt-2">
-            <span className="font-medium text-foreground">{workspace?.name ?? "Unknown Workspace"}</span>
+            <span className="font-medium text-foreground">{workspace?.name ?? "—"}</span>
             <span>•</span>
             <span>Created {format(new Date(task.created_at), "MMM d, yyyy")}</span>
           </SheetDescription>
@@ -64,9 +65,10 @@ export function TaskDrawer() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="todo">To Do</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="done">Done</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -113,11 +115,11 @@ export function TaskDrawer() {
           </div>
 
           <div className="pt-6 border-t flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={() => handleStatusChange(task.status === "completed" ? "pending" : "completed")}>
-              {task.status === "completed" ? (
-                <><Clock className="mr-2 h-4 w-4" /> Mark Pending</>
+            <Button variant="outline" size="sm" onClick={() => handleStatusChange(task.status === "done" ? "todo" : "done")}>
+              {task.status === "done" ? (
+                <><Clock className="mr-2 h-4 w-4" /> Mark To Do</>
               ) : (
-                <><CheckCircle2 className="mr-2 h-4 w-4" /> Mark Complete</>
+                <><CheckCircle2 className="mr-2 h-4 w-4" /> Mark Done</>
               )}
             </Button>
 

@@ -8,8 +8,8 @@ type TaskListProps = {
 
 export function TaskList({ tasks }: TaskListProps) {
   // Group tasks
-  const pendingTasks = tasks.filter((t) => t.status !== "completed");
-  const completedTasks = tasks.filter((t) => t.status === "completed");
+  const pendingTasks = tasks.filter((t) => t.status !== "done");
+  const completedTasks = tasks.filter((t) => t.status === "done");
 
   const overdue = pendingTasks.filter((t) => t.due_date && isPast(new Date(t.due_date)) && !isToday(new Date(t.due_date)));
   const today = pendingTasks.filter((t) => t.due_date && isToday(new Date(t.due_date)));

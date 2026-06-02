@@ -225,6 +225,48 @@ def test_get_weekly_summary_returns_metrics() -> None:
     assert summary["longest_streak"] == 2
 
 
+def test_get_weekly_summary_counts_current_streak_from_latest_check_in() -> None:
+    session = FakeSession()
+    owner_id = uuid4()
+    workspace_id = uuid4()
+    session.checkin_list_result = [
+        FakeCheckIn(
+            id=uuid4(),
+            workspace_id=workspace_id,
+            check_in_date=date.today() - timedelta(days=1),
+            mood="good",
+            wins="Done",
+            blockers=None,
+            score=80,
+            extra_metadata={},
+            created_at=None,
+            updated_at=None,
+        ),
+        FakeCheckIn(
+            id=uuid4(),
+            workspace_id=workspace_id,
+            check_in_date=date.today() - timedelta(days=2),
+            mood="good",
+            wins="Done",
+            blockers=None,
+            score=70,
+            extra_metadata={},
+            created_at=None,
+            updated_at=None,
+        ),
+    ]
+
+    original_get_workspace = checkin_services.get_workspace
+    checkin_services.get_workspace = lambda *_args, **_kwargs: FakeWorkspace(id=workspace_id, owner_id=owner_id)
+    try:
+        summary = get_weekly_summary(session, owner_id, workspace_id)
+    finally:
+        checkin_services.get_workspace = original_get_workspace
+
+    assert summary["current_streak"] == 2
+    assert summary["longest_streak"] == 2
+
+
 def test_get_weekly_summary_raises_for_missing_workspace() -> None:
     session = FakeSession()
     session.checkin_list_result = []

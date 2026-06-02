@@ -30,7 +30,7 @@ class CheckInResponse(BaseModel):
 
 
 class WeeklySummaryResponse(BaseModel):
-    workspace_id: UUID
+    workspace_id: UUID | None = None
     period_start: date
     period_end: date
     total_check_ins: int

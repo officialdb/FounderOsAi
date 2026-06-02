@@ -76,19 +76,19 @@ export function CheckinsView() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                   <StreakCard 
-                    currentStreak={streakData?.current_streak ?? weeklySummary?.current_streak ?? 0} 
-                    longestStreak={streakData?.longest_streak ?? weeklySummary?.best_score ?? 0} 
+                    currentStreak={streakData?.current_streak ?? weeklySummary?.current_streak ?? null} 
+                    longestStreak={streakData?.longest_streak ?? weeklySummary?.longest_streak ?? null} 
                   />
                 </div>
                 <div className="lg:col-span-1">
                   <ProductivityScoreCard 
-                    score={weeklySummary?.average_score ?? 0} 
-                    trend={weeklySummary ? 5 : undefined} // Mock trend for now
+                    score={weeklySummary?.average_score ?? null} 
+                    trend={undefined}
                   />
                 </div>
                 <div className="md:col-span-2 lg:col-span-1">
                   <WeeklyInsightCard 
-                    aiFeedback={checkIns[0]?.extra_metadata?.ai_feedback as string || "This week you maintained strong consistency. Focus on your priorities to keep the momentum going."}
+                    aiFeedback={(checkIns[0]?.extra_metadata?.ai_feedback as string | null | undefined) ?? null}
                     checkInCount={weeklySummary?.total_check_ins ?? checkIns.length}
                   />
                 </div>
@@ -113,15 +113,15 @@ export function CheckinsView() {
                     <div className="space-y-4">
                       <div>
                         <p className="text-xs uppercase text-muted-foreground font-semibold mb-1">Completed</p>
-                        <p className="text-sm line-clamp-2">{checkIn.completed_today ?? checkIn.wins ?? "No data"}</p>
+                        <p className="text-sm line-clamp-2">{checkIn.completed_today ?? checkIn.wins ?? "—"}</p>
                       </div>
                       <div>
                         <p className="text-xs uppercase text-muted-foreground font-semibold mb-1">Blockers</p>
-                        <p className="text-sm line-clamp-2">{checkIn.blockers ?? "None"}</p>
+                        <p className="text-sm line-clamp-2">{checkIn.blockers ?? "—"}</p>
                       </div>
                       <div>
                         <p className="text-xs uppercase text-muted-foreground font-semibold mb-1">Next Priorities</p>
-                        <p className="text-sm line-clamp-2">{(checkIn.extra_metadata?.next_priorities as string) ?? "Not set"}</p>
+                        <p className="text-sm line-clamp-2">{(checkIn.extra_metadata?.next_priorities as string) ?? "—"}</p>
                       </div>
                     </div>
                   </div>

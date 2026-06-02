@@ -43,7 +43,7 @@ def _serialize_outreach_log(outreach_log) -> OutreachResponse:
 
 @router.get("", response_model=list[OutreachResponse])
 def get_outreach_logs(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[OutreachResponse]:
@@ -94,7 +94,7 @@ def delete_single_outreach_log(
 
 @router.get("/follow-up-reminders", response_model=FollowUpReminderResponse)
 def follow_up_reminders(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> FollowUpReminderResponse:

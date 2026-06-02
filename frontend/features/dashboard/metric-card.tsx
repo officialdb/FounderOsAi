@@ -4,7 +4,7 @@ import { LucideIcon, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 type MetricCardProps = {
   title: string;
-  value: string | number;
+  value: string | number | null | undefined;
   description?: string;
   icon?: LucideIcon;
   trend?: {
@@ -15,6 +15,8 @@ type MetricCardProps = {
 };
 
 export function MetricCard({ title, value, description, icon: Icon, trend }: MetricCardProps) {
+  const displayValue = value ?? "—";
+
   return (
     <Card className="shadow-subtle border-border/50 bg-card overflow-hidden transition-all duration-200 hover:shadow-sm">
       <CardHeader className="pb-2 pt-5 px-5 flex flex-row items-center justify-between">
@@ -27,7 +29,7 @@ export function MetricCard({ title, value, description, icon: Icon, trend }: Met
       </CardHeader>
       <CardContent className="px-5 pb-5">
         <div className="flex items-baseline gap-2">
-          <p className="text-3xl font-semibold tracking-tight">{value}</p>
+          <p className="text-3xl font-semibold tracking-tight">{displayValue}</p>
           {trend && (
             <div
               className={cn(
@@ -57,4 +59,3 @@ export function MetricCard({ title, value, description, icon: Icon, trend }: Met
     </Card>
   );
 }
-

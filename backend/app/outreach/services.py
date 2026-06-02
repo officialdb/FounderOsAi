@@ -25,14 +25,14 @@ def _get_outreach_log(db: Session, outreach_id: UUID, owner_id: UUID) -> Outreac
     return log
 
 
-def list_outreach_logs(db: Session, workspace_id: UUID, owner_id: UUID) -> list[OutreachLog]:
-    get_workspace(db, workspace_id, owner_id)
-    return (
-        db.query(OutreachLog)
-        .filter(OutreachLog.workspace_id == workspace_id)
-        .order_by(OutreachLog.created_at.desc())
-        .all()
-    )
+def list_outreach_logs(db: Session, workspace_id: UUID | None, owner_id: UUID) -> list[OutreachLog]:
+    query = db.query(OutreachLog).join(Workspace, Workspace.id == OutreachLog.workspace_id).filter(Workspace.owner_id == owner_id)
+
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(OutreachLog.workspace_id == workspace_id)
+
+    return query.order_by(OutreachLog.created_at.desc()).all()
 
 
 def create_outreach_log(db: Session, owner_id: UUID, payload: OutreachCreateRequest) -> OutreachLog:
@@ -68,28 +68,20 @@ def delete_outreach_log(db: Session, outreach_id: UUID, owner_id: UUID) -> None:
     db.commit()
 
 
-def get_follow_up_reminders(db: Session, workspace_id: UUID, owner_id: UUID) -> dict[str, object]:
-    get_workspace(db, workspace_id, owner_id)
+def get_follow_up_reminders(db: Session, workspace_id: UUID | None, owner_id: UUID) -> dict[str, object]:
+    query = db.query(OutreachLog).join(Workspace, Workspace.id == OutreachLog.workspace_id).filter(Workspace.owner_id == owner_id)
+
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(OutreachLog.workspace_id == workspace_id)
+
     today = date.today()
-    due_follow_ups = (
-        db.query(OutreachLog)
-        .filter(
-            OutreachLog.workspace_id == workspace_id,
-            OutreachLog.status.in_(ACTIVE_FOLLOW_UP_STATUSES),
-            OutreachLog.follow_up_date == today,
-        )
-        .count()
-    )
-    overdue_follow_ups = (
-        db.query(OutreachLog)
-        .filter(
-            OutreachLog.workspace_id == workspace_id,
-            OutreachLog.status.in_(ACTIVE_FOLLOW_UP_STATUSES),
-            OutreachLog.follow_up_date.isnot(None),
-            OutreachLog.follow_up_date < today,
-        )
-        .count()
-    )
+    due_follow_ups = query.filter(OutreachLog.status.in_(ACTIVE_FOLLOW_UP_STATUSES), OutreachLog.follow_up_date == today).count()
+    overdue_follow_ups = query.filter(
+        OutreachLog.status.in_(ACTIVE_FOLLOW_UP_STATUSES),
+        OutreachLog.follow_up_date.isnot(None),
+        OutreachLog.follow_up_date < today,
+    ).count()
     return {
         "workspace_id": workspace_id,
         "reminder_date": today,

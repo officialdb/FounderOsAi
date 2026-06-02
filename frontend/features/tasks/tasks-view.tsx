@@ -13,6 +13,7 @@ import { useTasks } from "./task-queries";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDashboardData } from "@/features/dashboard/dashboard-query";
 import { useWorkspaceStore } from "@/store/workspace-store";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function TasksView() {
   const { 
@@ -95,13 +96,23 @@ export function TasksView() {
           {!mounted || isLoading || !workspaceId ? (
             <div className="space-y-4">
               {!workspaceId ? (
-                <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
-                  Loading workspace selection...
+                <div className="rounded-xl border border-dashed p-6 space-y-3">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-3 w-72" />
                 </div>
               ) : (
-                [1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-muted/50 rounded-xl animate-pulse" />
-                ))
+                <>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-24 rounded-xl" />
+                    ))}
+                  </div>
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <Skeleton key={i} className="h-20 rounded-xl" />
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           ) : viewMode === "list" ? (
