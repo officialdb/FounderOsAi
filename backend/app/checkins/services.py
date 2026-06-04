@@ -36,6 +36,22 @@ def _get_check_in_for_date(db: Session, workspace_id: UUID, check_in_date: date)
     )
 
 
+def _build_check_in_query(db: Session, owner_id: UUID, workspace_id: UUID | None):
+    query = db.query(CheckIn)
+    if hasattr(query, "join"):
+        query = query.join(Workspace, Workspace.id == CheckIn.workspace_id).filter(Workspace.owner_id == owner_id)
+
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(CheckIn.workspace_id == workspace_id)
+
+    return query
+
+
+def _get_all_check_ins(db: Session, owner_id: UUID, workspace_id: UUID | None) -> list[CheckIn]:
+    return _build_check_in_query(db, owner_id, workspace_id).order_by(CheckIn.check_in_date.asc()).all()
+
+
 def create_check_in(db: Session, owner_id: UUID, payload: CheckInCreateRequest) -> CheckIn:
     get_workspace(db, payload.workspace_id, owner_id)
     check_in_date = payload.check_in_date or date.today()
@@ -80,13 +96,7 @@ def create_check_in(db: Session, owner_id: UUID, payload: CheckInCreateRequest) 
     return check_in
 
 def get_check_ins(db: Session, owner_id: UUID, workspace_id: UUID | None) -> list[CheckIn]:
-    query = db.query(CheckIn).join(Workspace, Workspace.id == CheckIn.workspace_id).filter(Workspace.owner_id == owner_id)
-
-    if workspace_id is not None:
-        get_workspace(db, workspace_id, owner_id)
-        query = query.filter(CheckIn.workspace_id == workspace_id)
-
-    return query.order_by(CheckIn.check_in_date.desc()).all()
+    return list(reversed(_get_all_check_ins(db, owner_id, workspace_id)))
 
 
 def _calculate_current_streak(check_ins: list[CheckIn]) -> int:
@@ -128,16 +138,11 @@ def _calculate_longest_streak(check_ins: list[CheckIn]) -> int:
 
 
 def get_weekly_summary(db: Session, owner_id: UUID, workspace_id: UUID | None) -> dict[str, object]:
-    query = db.query(CheckIn).join(Workspace, Workspace.id == CheckIn.workspace_id).filter(Workspace.owner_id == owner_id)
-
-    if workspace_id is not None:
-        get_workspace(db, workspace_id, owner_id)
-        query = query.filter(CheckIn.workspace_id == workspace_id)
-
     today = date.today()
     period_start = today - timedelta(days=6)
+    query = _build_check_in_query(db, owner_id, workspace_id)
     weekly_check_ins = query.filter(CheckIn.check_in_date >= period_start).order_by(CheckIn.check_in_date.asc()).all()
-    all_check_ins = query.order_by(CheckIn.check_in_date.asc()).all()
+    all_check_ins = _get_all_check_ins(db, owner_id, workspace_id)
 
     if not weekly_check_ins:
         return {
