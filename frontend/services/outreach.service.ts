@@ -36,8 +36,9 @@ export type OutreachCreatePayload = {
 
 export type OutreachUpdatePayload = Partial<Omit<OutreachCreatePayload, "workspace_id">>;
 
-export async function getOutreachLogs(token: string, workspaceId: string) {
-  return apiRequest<OutreachLog[]>(`/outreach?workspace_id=${workspaceId}`, {}, { token });
+export async function getOutreachLogs(token: string, workspaceId?: string) {
+  const url = workspaceId ? `/outreach?workspace_id=${workspaceId}` : "/outreach";
+  return apiRequest<OutreachLog[]>(url, {}, { token });
 }
 
 export async function createOutreachLog(token: string, payload: OutreachCreatePayload) {
@@ -60,7 +61,8 @@ export async function deleteOutreachLog(token: string, outreachId: string) {
   }, { token });
 }
 
-export async function getFollowUpReminders(token: string, workspaceId: string) {
-  return apiRequest<FollowUpReminderResponse>(`/outreach/follow-up-reminders?workspace_id=${workspaceId}`, {}, { token });
+export async function getFollowUpReminders(token: string, workspaceId?: string) {
+  const url = workspaceId ? `/outreach/follow-up-reminders?workspace_id=${workspaceId}` : "/outreach/follow-up-reminders";
+  return apiRequest<FollowUpReminderResponse>(url, {}, { token });
 }
 

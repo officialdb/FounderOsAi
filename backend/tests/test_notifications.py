@@ -133,6 +133,27 @@ def test_create_notification_persists_record() -> None:
     assert notification.user_id == owner_id
 
 
+def test_create_notification_validates_workspace_ownership() -> None:
+    session = FakeSession()
+    owner_id = uuid4()
+    workspace_id = uuid4()
+    payload = NotificationCreateRequest(
+        workspace_id=workspace_id,
+        type="weekly_summary",
+        title="Weekly summary",
+        message="Summary ready",
+    )
+
+    original_get_workspace = notification_services.get_workspace
+    notification_services.get_workspace = lambda *_args, **_kwargs: FakeWorkspace(id=workspace_id, owner_id=owner_id)
+    try:
+        notification = create_notification(session, owner_id, payload)
+    finally:
+        notification_services.get_workspace = original_get_workspace
+
+    assert notification.workspace_id == workspace_id
+
+
 def test_update_notification_applies_changes() -> None:
     session = FakeSession()
     owner_id = uuid4()
@@ -154,6 +175,10 @@ def test_update_notification_applies_changes() -> None:
     result = update_notification(session, notification.id, owner_id, NotificationUpdateRequest(is_read=True))
 
     assert result.is_read is True
+
+
+def test_update_notification_schema_does_not_accept_scheduled_for() -> None:
+    assert "scheduled_for" not in NotificationUpdateRequest.model_fields
 
 
 def test_mark_notification_read_marks_item_read() -> None:

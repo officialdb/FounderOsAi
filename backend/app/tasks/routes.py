@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user
 from app.database.session import get_db
 from app.tasks.schemas import TaskCreateRequest, TaskResponse, TaskUpdateRequest
-from app.tasks.services import complete_task, create_task, get_task, list_tasks, update_task
+from app.tasks.services import complete_task, create_task, delete_task, get_task, list_tasks, update_task
 from app.users.models import User
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -31,7 +31,7 @@ def _serialize_task(task) -> TaskResponse:
 
 @router.get("", response_model=list[TaskResponse])
 def get_tasks(
-    workspace_id: UUID,
+    workspace_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[TaskResponse]:
@@ -79,3 +79,11 @@ def complete_single_task(
     task = complete_task(db, task_id, current_user.id)
     return _serialize_task(task)
 
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_single_task(
+    task_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    delete_task(db, task_id, current_user.id)

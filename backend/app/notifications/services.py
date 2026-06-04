@@ -27,6 +27,8 @@ def _get_notification(db: Session, notification_id: UUID, owner_id: UUID) -> Not
 
 
 def list_notifications(db: Session, owner_id: UUID, workspace_id: UUID | None = None) -> list[Notification]:
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
     query = db.query(Notification).filter(Notification.user_id == owner_id)
     if workspace_id is not None:
         query = query.filter(Notification.workspace_id == workspace_id)
@@ -34,6 +36,8 @@ def list_notifications(db: Session, owner_id: UUID, workspace_id: UUID | None = 
 
 
 def create_notification(db: Session, owner_id: UUID, payload: NotificationCreateRequest) -> Notification:
+    if payload.workspace_id is not None:
+        get_workspace(db, payload.workspace_id, owner_id)
     notification = Notification(
         user_id=owner_id,
         workspace_id=payload.workspace_id,
@@ -206,6 +210,8 @@ def generate_inactivity_prompt(db: Session, owner_id: UUID, workspace_id: UUID) 
 
 
 def get_notification_summary(db: Session, owner_id: UUID, workspace_id: UUID | None = None) -> dict[str, int]:
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
     query = db.query(Notification).filter(Notification.user_id == owner_id)
     if workspace_id is not None:
         query = query.filter(Notification.workspace_id == workspace_id)

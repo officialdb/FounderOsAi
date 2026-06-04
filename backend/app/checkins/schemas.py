@@ -30,16 +30,16 @@ class CheckInResponse(BaseModel):
 
 
 class WeeklySummaryResponse(BaseModel):
-    workspace_id: UUID
+    workspace_id: UUID | None = None
     period_start: date
     period_end: date
     total_check_ins: int
     average_score: float
     current_streak: int
+    longest_streak: int
     best_score: int
     missed_days: int
 
 class StreakResponse(BaseModel):
     current_streak: int
     longest_streak: int
-

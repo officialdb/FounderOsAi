@@ -12,14 +12,6 @@ export function ReminderCard({ reminder }: { reminder: AppNotification }) {
     update.mutate({ id: reminder.id, payload: { extra_metadata: { ...reminder.extra_metadata, archived: true }, is_read: true } });
   };
 
-  const handleReschedule = () => {
-    // Increment the scheduled_for date by 1 day
-    if (!reminder.scheduled_for) return;
-    const nextDate = new Date(reminder.scheduled_for);
-    nextDate.setDate(nextDate.getDate() + 1);
-    update.mutate({ id: reminder.id, payload: { scheduled_for: nextDate.toISOString() } });
-  };
-
   if (reminder.extra_metadata?.archived) return null;
 
   const dueDate = reminder.scheduled_for ? new Date(reminder.scheduled_for) : new Date(reminder.created_at);
@@ -47,9 +39,6 @@ export function ReminderCard({ reminder }: { reminder: AppNotification }) {
           <div className="flex items-center gap-2 pt-2">
             <Button size="sm" variant="default" className="h-8 px-3 text-xs" onClick={handleComplete}>
               <Check className="h-3.5 w-3.5 mr-1" /> Complete
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={handleReschedule}>
-              Reschedule +1D
             </Button>
           </div>
         </div>

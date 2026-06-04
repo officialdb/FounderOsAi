@@ -1,11 +1,11 @@
 from datetime import date, timedelta
 from uuid import UUID
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.checkins.models import CheckIn
 from app.checkins.schemas import CheckInCreateRequest
+from app.workspaces.models import Workspace
 from app.workspaces.services import get_workspace
 
 
@@ -34,6 +34,22 @@ def _get_check_in_for_date(db: Session, workspace_id: UUID, check_in_date: date)
         .filter(CheckIn.workspace_id == workspace_id, CheckIn.check_in_date == check_in_date)
         .first()
     )
+
+
+def _build_check_in_query(db: Session, owner_id: UUID, workspace_id: UUID | None):
+    query = db.query(CheckIn)
+    if hasattr(query, "join"):
+        query = query.join(Workspace, Workspace.id == CheckIn.workspace_id).filter(Workspace.owner_id == owner_id)
+
+    if workspace_id is not None:
+        get_workspace(db, workspace_id, owner_id)
+        query = query.filter(CheckIn.workspace_id == workspace_id)
+
+    return query
+
+
+def _get_all_check_ins(db: Session, owner_id: UUID, workspace_id: UUID | None) -> list[CheckIn]:
+    return _build_check_in_query(db, owner_id, workspace_id).order_by(CheckIn.check_in_date.asc()).all()
 
 
 def create_check_in(db: Session, owner_id: UUID, payload: CheckInCreateRequest) -> CheckIn:
@@ -79,14 +95,8 @@ def create_check_in(db: Session, owner_id: UUID, payload: CheckInCreateRequest) 
     db.refresh(check_in)
     return check_in
 
-def get_check_ins(db: Session, owner_id: UUID, workspace_id: UUID) -> list[CheckIn]:
-    get_workspace(db, workspace_id, owner_id)
-    return (
-        db.query(CheckIn)
-        .filter(CheckIn.workspace_id == workspace_id)
-        .order_by(CheckIn.check_in_date.desc())
-        .all()
-    )
+def get_check_ins(db: Session, owner_id: UUID, workspace_id: UUID | None) -> list[CheckIn]:
+    return list(reversed(_get_all_check_ins(db, owner_id, workspace_id)))
 
 
 def _calculate_current_streak(check_ins: list[CheckIn]) -> int:
@@ -94,10 +104,10 @@ def _calculate_current_streak(check_ins: list[CheckIn]) -> int:
         return 0
 
     ordered_dates = sorted({check_in.check_in_date for check_in in check_ins}, reverse=True)
-    streak = 0
-    expected_date = date.today()
+    streak = 1
+    expected_date = ordered_dates[0] - timedelta(days=1)
 
-    for actual_date in ordered_dates:
+    for actual_date in ordered_dates[1:]:
         if actual_date == expected_date:
             streak += 1
             expected_date -= timedelta(days=1)
@@ -107,42 +117,58 @@ def _calculate_current_streak(check_ins: list[CheckIn]) -> int:
     return streak
 
 
-def get_weekly_summary(db: Session, owner_id: UUID, workspace_id: UUID) -> dict[str, object]:
-    get_workspace(db, workspace_id, owner_id)
+def _calculate_longest_streak(check_ins: list[CheckIn]) -> int:
+    if not check_ins:
+        return 0
 
+    ordered_dates = sorted({check_in.check_in_date for check_in in check_ins})
+    longest = 0
+    current = 0
+    previous_date = None
+
+    for check_in_date in ordered_dates:
+        if previous_date is None or check_in_date == previous_date + timedelta(days=1):
+            current += 1
+        else:
+            current = 1
+        longest = max(longest, current)
+        previous_date = check_in_date
+
+    return longest
+
+
+def get_weekly_summary(db: Session, owner_id: UUID, workspace_id: UUID | None) -> dict[str, object]:
     today = date.today()
     period_start = today - timedelta(days=6)
-    check_ins = (
-        db.query(CheckIn)
-        .filter(CheckIn.workspace_id == workspace_id, CheckIn.check_in_date >= period_start)
-        .order_by(CheckIn.check_in_date.asc())
-        .all()
-    )
+    query = _build_check_in_query(db, owner_id, workspace_id)
+    weekly_check_ins = query.filter(CheckIn.check_in_date >= period_start).order_by(CheckIn.check_in_date.asc()).all()
+    all_check_ins = _get_all_check_ins(db, owner_id, workspace_id)
 
-    if not check_ins:
+    if not weekly_check_ins:
         return {
             "workspace_id": workspace_id,
             "period_start": period_start,
             "period_end": today,
             "total_check_ins": 0,
             "average_score": 0.0,
-            "current_streak": 0,
+            "current_streak": _calculate_current_streak(all_check_ins),
+            "longest_streak": _calculate_longest_streak(all_check_ins),
             "best_score": 0,
             "missed_days": 7,
         }
 
-    scores = [check_in.score for check_in in check_ins]
-    active_dates = {check_in.check_in_date for check_in in check_ins}
+    scores = [check_in.score for check_in in weekly_check_ins]
+    active_dates = {check_in.check_in_date for check_in in weekly_check_ins}
     missed_days = sum(1 for offset in range(7) if today - timedelta(days=offset) not in active_dates)
 
     return {
         "workspace_id": workspace_id,
         "period_start": period_start,
         "period_end": today,
-        "total_check_ins": len(check_ins),
+        "total_check_ins": len(weekly_check_ins),
         "average_score": round(sum(scores) / len(scores), 2),
-        "current_streak": _calculate_current_streak(check_ins),
+        "current_streak": _calculate_current_streak(all_check_ins),
+        "longest_streak": _calculate_longest_streak(all_check_ins),
         "best_score": max(scores),
         "missed_days": missed_days,
     }
-

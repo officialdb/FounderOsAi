@@ -6,13 +6,13 @@ import { Progress } from "@/components/ui/progress";
 import { Activity } from "lucide-react";
 
 type ProductivityScoreCardProps = {
-  score: number;
+  score: number | null;
   trend?: number; // e.g. +5% or -15%
 };
 
 export function ProductivityScoreCard({ score, trend }: ProductivityScoreCardProps) {
   // Simple animation for the progress bar
-  const [progress, setProgress] = React.useState(0);
+  const [progress, setProgress] = React.useState<number | null>(score);
   
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(score), 100);
@@ -28,9 +28,9 @@ export function ProductivityScoreCard({ score, trend }: ProductivityScoreCardPro
         <Activity className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-4xl font-bold">{score}%</div>
+        <div className="text-4xl font-bold">{score === null ? "—" : `${score}%`}</div>
         
-        {trend !== undefined && (
+        {trend !== undefined && score !== null && (
           <p className="text-xs text-muted-foreground mt-1 mb-4">
             <span className={trend >= 0 ? "text-emerald-500 font-medium" : "text-destructive font-medium"}>
               {trend >= 0 ? "+" : ""}{trend}%
@@ -40,7 +40,7 @@ export function ProductivityScoreCard({ score, trend }: ProductivityScoreCardPro
         )}
         
         <div className="mt-4 space-y-2">
-          <Progress value={progress} className="h-2" />
+          <Progress value={score === null ? 0 : progress ?? 0} className="h-2" />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>0%</span>
             <span>Consistency Trend</span>

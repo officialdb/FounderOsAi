@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getAuthToken } from "@/lib/auth";
-import { useWorkspaceStore } from "@/store/workspace-store";
 import { listWorkspaces, getWorkspace, createWorkspace, type WorkspaceCreatePayload } from "@/services/workspace.service";
 import { listTasks } from "@/services/task.service";
 import { getWeeklySummary } from "@/services/checkin.service";
@@ -11,9 +10,9 @@ import { getNotificationSummary } from "@/services/notification.service";
 import { fetchCurrentUser } from "@/services/auth.service";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
-export function useDashboardData() {
+export function useDashboardData(workspaceId?: string | null) {
   const token = getAuthToken();
-  const workspaceId = useWorkspaceStore((state) => state.workspaceId);
+  const activeWorkspaceId = workspaceId ?? null;
 
   const workspacesQuery = useQuery({
     queryKey: ["workspaces"],
@@ -22,26 +21,26 @@ export function useDashboardData() {
   });
 
   const selectedWorkspaceQuery = useQuery({
-    queryKey: ["workspace", workspaceId],
-    queryFn: () => getWorkspace(token ?? "", workspaceId ?? ""),
-    enabled: Boolean(token && workspaceId),
+    queryKey: ["workspace", activeWorkspaceId],
+    queryFn: () => getWorkspace(token ?? "", activeWorkspaceId ?? ""),
+    enabled: Boolean(token && activeWorkspaceId),
   });
 
   const tasksQuery = useQuery({
-    queryKey: ["tasks", workspaceId],
-    queryFn: () => listTasks(token ?? "", workspaceId ?? ""),
-    enabled: Boolean(token && workspaceId),
+    queryKey: ["tasks", activeWorkspaceId ?? "all"],
+    queryFn: () => listTasks(token ?? "", activeWorkspaceId ?? undefined),
+    enabled: Boolean(token),
   });
 
   const weeklySummaryQuery = useQuery({
-    queryKey: ["weekly-summary", workspaceId],
-    queryFn: () => getWeeklySummary(token ?? "", workspaceId ?? ""),
-    enabled: Boolean(token && workspaceId),
+    queryKey: ["weekly-summary", activeWorkspaceId ?? "all"],
+    queryFn: () => getWeeklySummary(token ?? "", activeWorkspaceId ?? undefined),
+    enabled: Boolean(token),
   });
 
   const notificationSummaryQuery = useQuery({
-    queryKey: ["notification-summary"],
-    queryFn: () => getNotificationSummary(token ?? ""),
+    queryKey: ["notification-summary", activeWorkspaceId ?? "all"],
+    queryFn: () => getNotificationSummary(token ?? "", activeWorkspaceId ?? undefined),
     enabled: Boolean(token),
   });
 

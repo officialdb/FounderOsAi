@@ -4,6 +4,11 @@ dist/
 build/
 .env
 .env.*
+!.env.example
+!backend/.env.example
+!backend/deploy/.env.production.example
+!frontend/.env.local.example
+!frontend/.env.frontend.example
 __pycache__/
 *.pyc
 .pytest_cache/

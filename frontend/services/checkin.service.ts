@@ -7,6 +7,7 @@ export type WeeklySummary = {
   total_check_ins: number;
   average_score: number;
   current_streak: number;
+  longest_streak: number;
   best_score: number;
   missed_days: number;
 };
@@ -42,14 +43,17 @@ export async function createCheckIn(token: string, payload: CheckInCreatePayload
   }, { token });
 }
 
-export async function getCheckIns(token: string, workspaceId: string) {
-  return apiRequest<CheckIn[]>(`/checkins?workspace_id=${workspaceId}`, {}, { token });
+export async function getCheckIns(token: string, workspaceId?: string) {
+  const url = workspaceId ? `/checkins?workspace_id=${workspaceId}` : "/checkins";
+  return apiRequest<CheckIn[]>(url, {}, { token });
 }
 
-export async function getWeeklySummary(token: string, workspaceId: string) {
-  return apiRequest<WeeklySummary>(`/checkins/weekly-summary?workspace_id=${workspaceId}`, {}, { token });
+export async function getWeeklySummary(token: string, workspaceId?: string) {
+  const url = workspaceId ? `/checkins/weekly-summary?workspace_id=${workspaceId}` : "/checkins/weekly-summary";
+  return apiRequest<WeeklySummary>(url, {}, { token });
 }
 
-export async function getStreak(token: string, workspaceId: string) {
-  return apiRequest<{ current_streak: number; longest_streak: number }>(`/checkins/streak?workspace_id=${workspaceId}`, {}, { token });
+export async function getStreak(token: string, workspaceId?: string) {
+  const url = workspaceId ? `/checkins/streak?workspace_id=${workspaceId}` : "/checkins/streak";
+  return apiRequest<{ current_streak: number; longest_streak: number }>(url, {}, { token });
 }

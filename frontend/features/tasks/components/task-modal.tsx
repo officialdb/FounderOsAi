@@ -48,7 +48,7 @@ export function TaskModal() {
       form.reset({
         title: "",
         description: "",
-        workspace_id: workspaceId ?? workspaces[0]?.id ?? "",
+        workspace_id: workspaceId ?? "",
         priority: "medium",
         due_date: "",
       });

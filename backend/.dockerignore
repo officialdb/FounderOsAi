@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.env.*
+pytest-cache-files-*/
+*.pyc
+*.pyo
+*.pyd
+*.log

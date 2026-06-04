@@ -2,6 +2,7 @@ from datetime import date, datetime
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+from typing import Literal
 
 
 class TaskCreateRequest(BaseModel):
@@ -17,7 +18,7 @@ class TaskUpdateRequest(BaseModel):
     description: str | None = None
     priority: int | None = Field(default=None, ge=1, le=5)
     due_date: date | None = None
-    status: str | None = Field(default=None, max_length=32)
+    status: Literal["todo", "in_progress", "done", "overdue"] | None = None
 
 
 class TaskResponse(BaseModel):
@@ -26,11 +27,10 @@ class TaskResponse(BaseModel):
     title: str
     description: str | None = None
     priority: int
-    status: str
+    status: Literal["todo", "in_progress", "done", "overdue"]
     due_date: date | None = None
     completed_at: datetime | None = None
     is_overdue: bool
     extra_metadata: dict[str, object]
     created_at: datetime
     updated_at: datetime
-

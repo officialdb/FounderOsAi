@@ -1,48 +1,59 @@
 "use client";
 
+import { useMemo } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, MessageSquare, ClipboardList, Sparkles } from "lucide-react";
+import type { Task } from "@/services/task.service";
+import type { CheckIn } from "@/services/checkin.service";
+import type { OutreachLog } from "@/services/outreach.service";
 
-const activities = [
-  {
-    id: 1,
-    title: "Task completed",
-    description: "Reviewed the updated pitch deck for Techpronnet",
-    time: "2 hours ago",
-    icon: CheckCircle2,
-    iconBg: "bg-emerald-500/10",
-    iconColor: "text-emerald-500",
-  },
-  {
-    id: 2,
-    title: "Outreach logged",
-    description: "Sent follow-up email to 5 potential investors",
-    time: "4 hours ago",
-    icon: MessageSquare,
-    iconBg: "bg-blue-500/10",
-    iconColor: "text-blue-500",
-  },
-  {
-    id: 3,
-    title: "Check-in submitted",
-    description: "Completed end-of-day summary for Zidi Clinic",
-    time: "Yesterday",
-    icon: ClipboardList,
-    iconBg: "bg-amber-500/10",
-    iconColor: "text-amber-500",
-  },
-  {
-    id: 4,
-    title: "AI content generated",
-    description: "Drafted a Twitter thread about startup operations",
-    time: "Yesterday",
-    icon: Sparkles,
-    iconBg: "bg-purple-500/10",
-    iconColor: "text-purple-500",
-  },
-];
+type ActivityTimelineProps = {
+  tasks: Task[];
+  checkIns: CheckIn[];
+  outreachLogs: OutreachLog[];
+};
 
-export function ActivityTimeline() {
+export function ActivityTimeline({ tasks, checkIns, outreachLogs }: ActivityTimelineProps) {
+  const activities = useMemo(() => {
+    const entries = [
+      ...tasks
+        .filter((task) => task.status === "done" && task.completed_at)
+        .map((task) => ({
+          id: `task-${task.id}`,
+          title: "Task completed",
+          description: task.title,
+          time: formatDistanceToNow(new Date(task.completed_at ?? task.updated_at), { addSuffix: true }),
+          date: new Date(task.completed_at ?? task.updated_at),
+          icon: CheckCircle2,
+          iconBg: "bg-emerald-500/10",
+          iconColor: "text-emerald-500",
+        })),
+      ...checkIns.map((checkIn) => ({
+        id: `checkin-${checkIn.id}`,
+        title: "Check-in submitted",
+        description: checkIn.completed_today ?? checkIn.wins ?? "No details captured",
+        time: formatDistanceToNow(new Date(checkIn.created_at), { addSuffix: true }),
+        date: new Date(checkIn.created_at),
+        icon: ClipboardList,
+        iconBg: "bg-amber-500/10",
+        iconColor: "text-amber-500",
+      })),
+      ...outreachLogs.map((log) => ({
+        id: `outreach-${log.id}`,
+        title: "Outreach logged",
+        description: `Contacted ${log.contact_name}`,
+        time: formatDistanceToNow(new Date(log.created_at), { addSuffix: true }),
+        date: new Date(log.created_at),
+        icon: MessageSquare,
+        iconBg: "bg-blue-500/10",
+        iconColor: "text-blue-500",
+      })),
+    ];
+
+    return entries.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 5);
+  }, [tasks, checkIns, outreachLogs]);
+
   return (
     <Card className="border-border/50 shadow-subtle">
       <CardHeader>
