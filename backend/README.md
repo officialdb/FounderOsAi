@@ -97,6 +97,34 @@ FastAPI service for authentication, workspaces, tasks, check-ins, outreach, AI, 
 - `POST /api/v1/notifications/generate/weekly-summary`
 - `POST /api/v1/notifications/generate/inactivity-prompt`
 
+## Deployment
+
+The backend is containerized for AWS hosting and deployed through GitHub Actions.
+
+- Backend runs on AWS in Docker.
+- PostgreSQL stays on Render for now.
+- Redis runs alongside the backend container on the AWS host.
+- The frontend stays on Vercel and points to the AWS backend URL.
+
+### Production env template
+
+- `deploy/.env.production.example`
+
+### CI/CD flow
+
+1. Push to the `backend` branch.
+2. GitHub Actions runs tests and migrations.
+3. GitHub Actions builds and pushes the backend image to GHCR.
+4. The EC2 host pulls the new image and restarts the stack with Docker Compose.
+
+### EC2 bootstrap
+
+On the EC2 host, clone the repository under `/opt/founderos/backend`, place the production env file at `/opt/founderos/backend/.env`, then run:
+
+```bash
+docker compose -f deploy/docker-compose.prod.yml up -d
+```
+
 ### Notification update contract
 
 - `scheduled_for` is supported on create requests.

@@ -6,6 +6,7 @@ build/
 .env.*
 !.env.example
 !backend/.env.example
+!backend/deploy/.env.production.example
 !frontend/.env.local.example
 !frontend/.env.frontend.example
 __pycache__/
