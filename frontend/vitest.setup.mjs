@@ -14,7 +14,7 @@ class ResizeObserverMock {
 }
 
 if (typeof globalThis.ResizeObserver === "undefined") {
-  globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver = ResizeObserverMock;
 }
 
 if (typeof window !== "undefined") {
@@ -34,16 +34,8 @@ if (typeof window !== "undefined") {
 }
 
 vi.mock("next/image", () => ({
-  default: (props: Record<string, unknown>) => {
-    const { fill, priority, placeholder, blurDataURL, loader, ...rest } = props as {
-      fill?: boolean;
-      priority?: boolean;
-      placeholder?: string;
-      blurDataURL?: string;
-      loader?: unknown;
-      src?: string;
-      alt?: string;
-    };
+  default: (props) => {
+    const { fill, priority, placeholder, blurDataURL, loader, ...rest } = props;
 
     return React.createElement("img", {
       ...rest,
@@ -54,15 +46,7 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("next/link", () => ({
-  default: ({
-    href,
-    children,
-    ...rest
-  }: {
-    href: string | { pathname?: string };
-    children: React.ReactNode;
-    [key: string]: unknown;
-  }) =>
+  default: ({ href, children, ...rest }) =>
     React.createElement(
       "a",
       {
