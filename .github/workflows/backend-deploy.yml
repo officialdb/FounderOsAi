@@ -125,7 +125,11 @@ jobs:
             git config --global --add safe.directory /opt/founderos/FounderOsAi
             git fetch origin main
             git reset --hard origin/main
-            export BACKEND_IMAGE=ghcr.io/${{ github.repository_owner }}/founderos-backend:${{ github.sha }}
+            test -f backend/.env
+            set -a
+            . backend/.env
+            set +a
+            export BACKEND_IMAGE=ghcr.io/${{ github.repository_owner }}/founderos-backend:latest
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_READ_TOKEN }}
-            docker compose -f backend/deploy/docker-compose.prod.yml pull
-            docker compose -f backend/deploy/docker-compose.prod.yml up -d
+            docker compose --env-file backend/.env -f backend/deploy/docker-compose.prod.yml pull
+            docker compose --env-file backend/.env -f backend/deploy/docker-compose.prod.yml up -d
