@@ -3,6 +3,9 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+LABEL org.opencontainers.image.source="https://github.com/officialdb/FounderOsAi"
+LABEL org.opencontainers.image.description="FounderOS AI backend API"
+
 WORKDIR /app
 
 RUN apt-get update \
