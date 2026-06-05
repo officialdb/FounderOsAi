@@ -12,7 +12,7 @@ import { WorkspaceModal } from "@/features/dashboard/workspace-modal";
 export function WorkspacesView() {
   const router = useRouter();
   const workspaceId = useWorkspaceStore((state) => state.workspaceId);
-  const { workspacesQuery } = useDashboardData(workspaceId);
+  const workspacesQuery = useWorkspaces();
   const workspaces = workspacesQuery.data ?? [];
   const isLoading = workspacesQuery.isLoading;
   const setWorkspaceId = useWorkspaceStore((state) => state.setWorkspaceId);
