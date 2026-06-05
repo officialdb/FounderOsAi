@@ -9,6 +9,7 @@ import { StatusBadge } from "./status-badge";
 import { useWorkspaceStore } from "@/store/workspace-store";
 import { useOutreachStore } from "@/store/outreach-store";
 import { useOutreachLogs, useUpdateOutreach, useDeleteOutreach } from "@/features/outreach/outreach-queries";
+import type { OutreachStatus } from "@/services/outreach.service";
 
 export function OutreachDrawer() {
   const { activeRecordId, setActiveRecordId } = useOutreachStore();
@@ -32,7 +33,7 @@ export function OutreachDrawer() {
 
   if (!activeLog || !workspaceId) return null;
 
-  const handleStatusChange = (newStatus: string) => {
+  const handleStatusChange = (newStatus: OutreachStatus) => {
     updateMutation.mutate({
       id: activeLog.id,
       workspaceId,

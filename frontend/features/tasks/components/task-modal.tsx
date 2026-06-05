@@ -12,7 +12,7 @@ import { FormError } from "@/components/feedback/form-error";
 import { useTaskStore } from "@/store/task-store";
 import { useWorkspaceStore } from "@/store/workspace-store";
 import { useCreateTask } from "../task-queries";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -27,7 +27,7 @@ type TaskFormValues = z.infer<typeof taskSchema>;
 export function TaskModal() {
   const { isTaskModalOpen, setTaskModalOpen } = useTaskStore();
   const workspaceId = useWorkspaceStore((state) => state.workspaceId);
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const workspaces = workspacesQuery.data ?? [];
   const { mutateAsync: createTask, isPending } = useCreateTask();
 
@@ -59,7 +59,7 @@ export function TaskModal() {
     try {
       await createTask({
         ...values,
-        priority: values.priority as any,
+        priority: values.priority as import("@/services/task.service").TaskPriority,
       });
       setTaskModalOpen(false);
     } catch (error) {

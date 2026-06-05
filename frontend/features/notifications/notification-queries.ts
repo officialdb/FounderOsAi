@@ -9,6 +9,8 @@ import {
   type NotificationUpdateRequest
 } from "@/services/notification.service";
 
+import type { AppNotification } from "@/services/notification.service";
+
 export function useNotifications(workspaceId?: string) {
   const token = getAuthToken();
 
@@ -37,7 +39,26 @@ export function useMarkNotificationRead() {
 
   return useMutation({
     mutationFn: (notificationId: string) => markNotificationRead(token ?? "", notificationId),
-    onSuccess: () => {
+    onMutate: async (notificationId) => {
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      
+      const previousQueries = queryClient.getQueriesData<AppNotification[]>({ queryKey: ["notifications"] });
+      
+      queryClient.setQueriesData<AppNotification[]>({ queryKey: ["notifications"] }, (old) => {
+        if (!old) return old;
+        return old.map(n => n.id === notificationId ? { ...n, is_read: true } : n);
+      });
+
+      return { previousQueries };
+    },
+    onError: (err, notificationId, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["notification-summary"] });
     },
@@ -51,7 +72,26 @@ export function useUpdateNotification() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: NotificationUpdateRequest }) =>
       updateNotification(token ?? "", id, payload),
-    onSuccess: () => {
+    onMutate: async ({ id, payload }) => {
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      
+      const previousQueries = queryClient.getQueriesData<AppNotification[]>({ queryKey: ["notifications"] });
+      
+      queryClient.setQueriesData<AppNotification[]>({ queryKey: ["notifications"] }, (old) => {
+        if (!old) return old;
+        return old.map(n => n.id === id ? { ...n, ...payload, updated_at: new Date().toISOString() } as AppNotification : n);
+      });
+
+      return { previousQueries };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["notification-summary"] });
     },
@@ -64,7 +104,26 @@ export function useDeleteNotification() {
 
   return useMutation({
     mutationFn: (notificationId: string) => deleteNotification(token ?? "", notificationId),
-    onSuccess: () => {
+    onMutate: async (notificationId) => {
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      
+      const previousQueries = queryClient.getQueriesData<AppNotification[]>({ queryKey: ["notifications"] });
+      
+      queryClient.setQueriesData<AppNotification[]>({ queryKey: ["notifications"] }, (old) => {
+        if (!old) return old;
+        return old.filter(n => n.id !== notificationId);
+      });
+
+      return { previousQueries };
+    },
+    onError: (err, notificationId, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["notification-summary"] });
     },

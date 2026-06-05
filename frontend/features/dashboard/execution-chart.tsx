@@ -32,7 +32,7 @@ export function ExecutionChart({ tasks, checkIns, outreachLogs }: ExecutionChart
   }, [tasks, checkIns, outreachLogs]);
 
   return (
-    <Card className="col-span-1 border-border/50 shadow-subtle lg:col-span-2 overflow-hidden">
+    <Card className="col-span-1 min-w-0 border-border/50 shadow-subtle lg:col-span-2 overflow-hidden">
       <CardHeader>
         <CardTitle className="text-lg">Weekly Execution Trend</CardTitle>
         <CardDescription>Visualizing consistency in tasks, check-ins, and outreach.</CardDescription>

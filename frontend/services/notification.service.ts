@@ -16,7 +16,7 @@ export interface AppNotification {
     archived?: boolean;
     priority?: AlertPriority;
     recommended_action?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   created_at: string;
   updated_at: string;

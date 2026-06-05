@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Button } from "@/components/ui/button";
 import { useTaskStore } from "@/store/task-store";
 import { useTasks, useUpdateTask, useDeleteTask } from "../task-queries";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 import { PriorityBadge } from "./priority-badge";
 import { StatusBadge } from "./status-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,7 +17,7 @@ import type { TaskPriority, TaskStatus } from "@/services/task.service";
 export function TaskDrawer() {
   const { selectedTaskId, setSelectedTaskId, workspaceFilter } = useTaskStore();
   const { data: tasks } = useTasks(workspaceFilter);
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const { mutate: updateTask } = useUpdateTask();
   const { mutate: deleteTask } = useDeleteTask();
 

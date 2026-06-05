@@ -13,7 +13,7 @@ import { StatusBadge } from "./status-badge";
 import { type Task } from "@/services/task.service";
 import { useTaskStore } from "@/store/task-store";
 import { useUpdateTask, useDeleteTask } from "../task-queries";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 
 type TaskCardProps = {
   task: Task;
@@ -24,7 +24,7 @@ export function TaskCard({ task, view = "list" }: TaskCardProps) {
   const setSelectedTaskId = useTaskStore((state) => state.setSelectedTaskId);
   const { mutate: updateTask } = useUpdateTask();
   const { mutate: deleteTask } = useDeleteTask();
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   
   const workspaces = workspacesQuery.data ?? [];
   const workspace = workspaces.find((w) => w.id === task.workspace_id);

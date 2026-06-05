@@ -43,7 +43,7 @@ export function useCreateCheckIn() {
       queryClient.invalidateQueries({ queryKey: ["weeklySummary"] });
       queryClient.invalidateQueries({ queryKey: ["streak"] });
       queryClient.invalidateQueries({ queryKey: ["checkins", variables.workspace_id] });
-      queryClient.invalidateQueries({ queryKey: ["weeklySummary", variables.workspace_id] });
+      queryClient.invalidateQueries({ queryKey: ["weekly-summary", variables.workspace_id] });
       queryClient.invalidateQueries({ queryKey: ["streak", variables.workspace_id] });
     },
   });
