@@ -10,7 +10,9 @@ import { WorkspaceHealthCards } from "@/features/dashboard/workspace-health-card
 import { ActivityTimeline } from "@/features/dashboard/activity-timeline";
 import { useDashboardData } from "@/features/dashboard/dashboard-query";
 import { useCheckInStore } from "@/store/checkin-store";
-import { useStreak, useCheckIns } from "@/features/checkins/checkin-queries";
+import { useTasks } from "@/features/tasks/task-queries";
+import { useWeeklySummary, useStreak, useCheckIns } from "@/features/checkins/checkin-queries";
+import { useNotificationSummary } from "@/features/notifications/notification-queries";
 import { useOutreachLogs } from "@/features/outreach/outreach-queries";
 import { LoadingState } from "@/components/feedback/loading-state";
 import { ErrorState } from "@/components/feedback/error-state";

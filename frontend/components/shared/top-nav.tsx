@@ -4,7 +4,8 @@ import * as React from "react";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { WorkspaceSwitcher } from "@/features/dashboard/workspace-switcher";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
+import { useCurrentUser } from "@/features/auth/auth-queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { clearAuthToken } from "@/lib/auth";
@@ -361,9 +362,14 @@ export function TopNav() {
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="cursor-pointer text-destructive focus:bg-destructive focus:text-destructive-foreground" 
-                onClick={() => {
-                  clearAuthToken();
-                  router.push("/login");
+                onClick={async () => {
+                  try {
+                    await logout();
+                  } finally {
+                    clearAuthToken();
+                    useAuthStore.getState().logout();
+                    router.push("/login");
+                  }
                 }}
               >
                 <LogOut className="mr-2 h-4 w-4" />

@@ -70,14 +70,14 @@ export function WorkspaceHealthCards({ workspaces, tasks, checkIns, outreachLogs
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">Tasks</span>
                   </div>
-                  <span className="text-sm font-semibold">{activeTasks}</span>
+                  <span className="text-sm font-semibold">{workspaceTasks}</span>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">
                     <MessageSquare className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">Outreach</span>
                   </div>
-                  <span className="text-sm font-semibold">{outreachCount}</span>
+                  <span className="text-sm font-semibold">{workspaceOutreach}</span>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">

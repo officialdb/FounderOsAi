@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTaskStore } from "@/store/task-store";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useWorkspaces } from "@/features/workspaces/workspace-queries";
 
 export function TaskFilters() {
   const {
@@ -27,7 +27,7 @@ export function TaskFilters() {
     setViewMode,
   } = useTaskStore();
 
-  const { workspacesQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
   const workspaces = workspacesQuery.data ?? [];
 
   return (

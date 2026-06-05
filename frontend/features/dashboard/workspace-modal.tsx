@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormError } from "@/components/feedback/form-error";
-import { useCreateWorkspace } from "./dashboard-query";
+import { useCreateWorkspace } from "@/features/workspaces/workspace-queries";
 import { useWorkspaceStore } from "@/store/workspace-store";
 
 const workspaceSchema = z.object({

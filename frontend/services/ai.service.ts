@@ -14,7 +14,7 @@ export type AIGeneration = {
   prompt: string;
   response_text: string;
   model_name: string;
-  extra_metadata: Record<string, any>;
+  extra_metadata: Record<string, unknown>;
   created_at: string;
 };
 
