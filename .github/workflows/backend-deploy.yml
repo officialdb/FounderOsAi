@@ -110,7 +110,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/backend'
+    if: github.ref == 'refs/heads/dev'
     environment: production
     steps:
       - name: Deploy to EC2 via SSH
