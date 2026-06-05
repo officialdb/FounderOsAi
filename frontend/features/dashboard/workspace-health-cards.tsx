@@ -23,10 +23,11 @@ export function WorkspaceHealthCards({ workspaces, tasks, checkIns, outreachLogs
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {workspaces.slice(0, 2).map((workspace, index) => {
+      {workspaces.slice(0, 2).map((workspace) => {
         const workspaceTasks = tasks.filter((task) => task.workspace_id === workspace.id);
         const activeTasks = workspaceTasks.filter((task) => task.status !== "done").length;
-        const outreachCount = outreachLogs.filter((log) => log.workspace_id === workspace.id).length;
+        const workspaceOutreach = outreachLogs.filter((log) => log.workspace_id === workspace.id);
+        const outreachCount = workspaceOutreach.length;
         const workspaceCheckIns = checkIns.filter((checkIn) => checkIn.workspace_id === workspace.id);
         const latestActivityDate = [
           ...workspaceTasks.map((task) => new Date(task.updated_at)),
@@ -70,14 +71,14 @@ export function WorkspaceHealthCards({ workspaces, tasks, checkIns, outreachLogs
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">Tasks</span>
                   </div>
-                  <span className="text-sm font-semibold">{workspaceTasks}</span>
+                  <span className="text-sm font-semibold">{workspaceTasks.length}</span>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">
                     <MessageSquare className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">Outreach</span>
                   </div>
-                  <span className="text-sm font-semibold">{workspaceOutreach}</span>
+                  <span className="text-sm font-semibold">{outreachCount}</span>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">
