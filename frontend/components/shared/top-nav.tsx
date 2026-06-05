@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { clearAuthToken } from "@/lib/auth";
 import { logout } from "@/services/auth.service";
-import { useDashboardData } from "@/features/dashboard/dashboard-query";
+import { useCurrentUser } from "@/features/auth/auth-queries";
+import { useTasks } from "@/features/tasks/task-queries";
 import { useAuthStore } from "@/store/auth-store";
 import { useTaskStore } from "@/store/task-store";
 import { useWorkspaceStore } from "@/store/workspace-store";
@@ -42,7 +43,9 @@ type SearchResult = {
 
 export function TopNav() {
   const router = useRouter();
-  const { workspacesQuery, tasksQuery, userQuery } = useDashboardData();
+  const workspacesQuery = useWorkspaces();
+  const tasksQuery = useTasks("all");
+  const userQuery = useCurrentUser();
   const workspaces = workspacesQuery.data ?? [];
   const user = userQuery?.data;
   const dashboardTasks = tasksQuery.data ?? [];
