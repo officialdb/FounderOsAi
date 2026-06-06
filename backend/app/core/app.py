@@ -19,6 +19,7 @@ def create_app() -> FastAPI:
     cors_origins = settings.cors_origins
     if not cors_origins and settings.app_env == "development":
         cors_origins = [
+            "https://founder-os-ai-ten.vercel.app",
             "http://localhost:3000",
             "http://127.0.0.1:3000",
         ]
